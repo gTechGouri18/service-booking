@@ -1,0 +1,648 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Command Center - ServiceHub Luxury Concierge{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    {% if not authorized %}
+        <!-- Luxury Administrator Login & Gatekeeper Screen -->
+        <div style="max-width: 500px; margin: 4rem auto; background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 3rem 2.5rem; text-align: center; box-shadow: var(--shadow-lux);">
+            <div style="width: 72px; height: 72px; background: #D8CFD0; border: 1.5px solid #B1A6A4; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem; color: #413F3D;">
+                👑
+            </div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: #697184; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.5rem;">
+                ✦ Administrator Portal
+            </div>
+            <h1 style="font-family: var(--font-heading); font-size: 1.85rem; color: #413F3D; margin-bottom: 0.6rem;">
+                Command Center Access
+            </h1>
+            <p style="color: #697184; font-size: 0.9rem; line-height: 1.6; margin-bottom: 2rem;">
+                Log in with your registered Administrator email & password, or unlock instantly via security passcode.
+            </p>
+
+            <form method="POST" action="/admin/login">
+                <div class="form-group" style="text-align: left; margin-bottom: 1.25rem;">
+                    <label for="admin_email" style="color: #413F3D; font-size: 0.85rem; font-weight: 700;">Admin Email Address</label>
+                    <input
+                        type="email"
+                        id="admin_email"
+                        name="email"
+                        placeholder="admin@servicehub.com"
+                        style="background: #F2F1EF; border: 1.5px solid #B1A6A4; color: #413F3D; padding: 0.85rem 1rem; border-radius: var(--radius); width: 100%; font-size: 0.95rem;"
+                    >
+                </div>
+
+                <div class="form-group" style="text-align: left; margin-bottom: 1.25rem;">
+                    <label for="admin_password" style="color: #413F3D; font-size: 0.85rem; font-weight: 700;">Admin Password</label>
+                    <input
+                        type="password"
+                        id="admin_password"
+                        name="password"
+                        placeholder="Enter admin password"
+                        style="background: #F2F1EF; border: 1.5px solid #B1A6A4; color: #413F3D; padding: 0.85rem 1rem; border-radius: var(--radius); width: 100%; font-size: 0.95rem;"
+                    >
+                </div>
+
+                <div style="position: relative; text-align: center; margin: 1.5rem 0 1.25rem;">
+                    <hr style="border: none; border-top: 1px solid #B1A6A4;">
+                    <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #ffffff; padding: 0 0.75rem; color: #697184; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">OR QUICK PASSCODE</span>
+                </div>
+
+                <div class="form-group" style="text-align: left; margin-bottom: 1.5rem;">
+                    <label for="passcode" style="color: #413F3D; font-size: 0.85rem; font-weight: 700;">Security Key (Optional)</label>
+                    <input
+                        type="password"
+                        id="passcode"
+                        name="passcode"
+                        placeholder="Enter admin passcode (e.g. admin123)"
+                        style="background: #F2F1EF; border: 1.5px solid #B1A6A4; color: #413F3D; padding: 0.85rem 1rem; border-radius: var(--radius); width: 100%; font-size: 0.95rem;"
+                    >
+                    <div style="font-size: 0.775rem; color: #697184; margin-top: 0.35rem;">
+                        Default credential: <b style="color: #413F3D;">admin123</b>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-gold btn-block" style="padding: 1rem; font-weight: 800; letter-spacing: 0.05em; font-size: 1rem; width: 100%;">
+                    🗝️ Admin Login & Unlock
+                </button>
+            </form>
+
+            <div style="margin-top: 2rem; border-top: 1px solid #B1A6A4; padding-top: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <a href="/admin/register" class="btn btn-luxury-outline" style="padding: 0.75rem 1rem; font-weight: 700; text-align: center; text-decoration: none;">
+                    ✨ Register New Administrator Profile
+                </a>
+                <a href="/" style="color: #697184; font-size: 0.85rem; text-decoration: none; font-weight: 600;">
+                    &larr; Return to Public Experience
+                </a>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Authenticated Admin Dashboard -->
+
+        <!-- Header -->
+        <div class="page-header" style="align-items: flex-end; padding-bottom: 1.75rem; border-bottom: 1.5px solid #B1A6A4; margin-bottom: 2.5rem;">
+            <div>
+                <div style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: 700; color: #697184; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.4rem;">
+                    <span>👑</span> Master Control & Operational Telemetry
+                </div>
+                <h1 class="page-title" style="margin: 0; font-family: var(--font-heading); font-size: 2.3rem; color: #413F3D;">
+                    Platform Command Center
+                </h1>
+                <p class="page-subtitle" style="margin-top: 0.35rem; color: #697184;">
+                    Real-time oversight over customers, verified studios, bookings, token settlement volumes, and jobs.
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <a href="/" class="btn btn-luxury-outline">🌐 View Website</a>
+                <a href="/admin/logout" class="btn" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600;">
+                    🔒 Exit Admin
+                </a>
+            </div>
+        </div>
+
+        <!-- 8-Counter Telemetry Grid -->
+        <div class="grid-4" style="margin-bottom: 1.5rem;">
+            <!-- Total Customers -->
+            <div class="stat-widget" style="background: #ffffff; border: 1.5px solid #B1A6A4; padding: 1.25rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                <div class="dash-icon" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.25);">👥</div>
+                <div>
+                    <div class="stat-number" style="font-family: var(--font-heading); color: #413F3D; font-size: 1.85rem;">{{ total_customers }}</div>
+                    <div class="stat-label" style="color: #697184; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Registered Clients</div>
+                </div>
+            </div>
+
+            <!-- Total Professionals -->
+            <div class="stat-widget" style="background: #ffffff; border: 1.5px solid #B1A6A4; padding: 1.25rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                <div class="dash-icon" style="background: #D8CFD0; color: #413F3D; border: 1px solid #B1A6A4;">🎨</div>
+                <div>
+                    <div class="stat-number" style="font-family: var(--font-heading); color: #413F3D; font-size: 1.85rem;">{{ total_professionals }}</div>
+                    <div class="stat-label" style="color: #697184; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Verified Artisans</div>
+                </div>
+            </div>
+
+            <!-- Total Studios -->
+            <div class="stat-widget" style="background: #ffffff; border: 1.5px solid #B1A6A4; padding: 1.25rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                <div class="dash-icon" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.25);">🏪</div>
+                <div>
+                    <div class="stat-number" style="font-family: var(--font-heading); color: #413F3D; font-size: 1.85rem;">{{ total_shops }}</div>
+                    <div class="stat-label" style="color: #697184; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Listed Studios</div>
+                </div>
+            </div>
+
+            <!-- Total Bookings -->
+            <div class="stat-widget" style="background: #ffffff; border: 1.5px solid #B1A6A4; padding: 1.25rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                <div class="dash-icon" style="background: rgba(168, 85, 247, 0.12); color: #7e22ce; border: 1px solid rgba(168, 85, 247, 0.25);">📋</div>
+                <div>
+                    <div class="stat-number" style="font-family: var(--font-heading); color: #413F3D; font-size: 1.85rem;">{{ total_bookings }}</div>
+                    <div class="stat-label" style="color: #697184; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">All-Time Bookings</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 3rem;">
+            <!-- Pending Bookings -->
+            <div class="stat-widget" style="background: #ffffff; border: 1.5px solid #B1A6A4; padding: 1.25rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                <div class="dash-icon" style="background: rgba(245, 158, 11, 0.12); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.25);">⏳</div>
+                <div>
+                    <div class="stat-number" style="font-family: var(--font-heading); color: #b45309; font-size: 1.85rem;">{{ pending_bookings }}</div>
+                    <div class="stat-label" style="color: #697184; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Pending Confirmation</div>
+                </div>
+            </div>
+
+            <!-- Active Bookings -->
+            <div class="stat-widget" style="background: #ffffff; border: 1.5px solid #B1A6A4; padding: 1.25rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                <div class="dash-icon" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.25);">🔄</div>
+                <div>
+                    <div class="stat-number" style="font-family: var(--font-heading); color: #2563eb; font-size: 1.85rem;">{{ accepted_bookings }}</div>
+                    <div class="stat-label" style="color: #697184; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Active / In-Flight</div>
+                </div>
+            </div>
+
+            <!-- Completed Bookings -->
+            <div class="stat-widget" style="background: #ffffff; border: 1.5px solid #B1A6A4; padding: 1.25rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                <div class="dash-icon" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.25);">🎉</div>
+                <div>
+                    <div class="stat-number" style="font-family: var(--font-heading); color: #047857; font-size: 1.85rem;">{{ completed_bookings }}</div>
+                    <div class="stat-label" style="color: #697184; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Completed Orders</div>
+                </div>
+            </div>
+
+            <!-- Advance Volume Token -->
+            <div class="stat-widget" style="background: #ffffff; border: 1.5px solid #B1A6A4; padding: 1.25rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                <div class="dash-icon" style="background: #D8CFD0; color: #413F3D; border: 1px solid #B1A6A4;">💳</div>
+                <div>
+                    <div class="stat-number" style="font-family: var(--font-heading); color: #413F3D; font-size: 1.85rem;">₹{{ total_advance_volume|round|int }}</div>
+                    <div class="stat-label" style="color: #697184; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Token Payment Volume</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Management Navigation Tabs -->
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem; border-bottom: 1.5px solid #B1A6A4; padding-bottom: 1rem;">
+            <button class="btn btn-sm btn-gold admin-tab-btn" onclick="showAdminTab('bookings', this)">
+                📋 Bookings & Orders ({{ bookings|length }})
+            </button>
+            <button class="btn btn-sm btn-luxury-outline admin-tab-btn" onclick="showAdminTab('professionals', this)">
+                🎨 Verified Professionals ({{ professionals|length }})
+            </button>
+            <button class="btn btn-sm btn-luxury-outline admin-tab-btn" onclick="showAdminTab('customers', this)">
+                👥 Clients Directory ({{ customers|length }})
+            </button>
+            <button class="btn btn-sm btn-luxury-outline admin-tab-btn" onclick="showAdminTab('jobs', this)">
+                💼 Job Market Needs ({{ jobs|length }})
+            </button>
+            <button class="btn btn-sm btn-luxury-outline admin-tab-btn" onclick="showAdminTab('administrators', this)">
+                👑 Administrators ({{ administrators|length }})
+            </button>
+        </div>
+
+        <!-- TAB 1: ALL BOOKINGS -->
+        <div id="tab-bookings" class="admin-tab-content">
+            <div style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-sm);">
+                <div class="page-header" style="margin-bottom: 1.5rem; border-bottom: 1px solid #B1A6A4; padding-bottom: 1rem;">
+                    <div>
+                        <h2 style="font-family: var(--font-heading); font-size: 1.45rem; color: #413F3D; margin: 0;">
+                            Global Booking Registry
+                        </h2>
+                        <p style="color: #697184; font-size: 0.88rem; margin-top: 0.25rem;">
+                            Track order status, customer names, assigned studios, payment breakdown, and execute management controls.
+                        </p>
+                    </div>
+                </div>
+
+                {% if bookings %}
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">S.No.</th>
+                                    <th>Booking ID</th>
+                                    <th>Service</th>
+                                    <th>Client</th>
+                                    <th>Studio / Pro</th>
+                                    <th>Date & Time</th>
+                                    <th>Bill & Advance</th>
+                                    <th>Status</th>
+                                    <th>Payment</th>
+                                    <th>Admin Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in bookings %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge" style="background: #D8CFD0; color: #413F3D; font-weight: 800;">{{ loop.index }}</span>
+                                        </td>
+                                        <td><b style="color: #413F3D;">#{{ b.Id }}</b></td>
+                                        <td><b style="color: #413F3D;">{{ b.Service }}</b></td>
+                                        <td>
+                                             <div style="font-weight: 600; color: #413F3D;">{{ b.customer_name }}</div>
+                                             <div style="font-size: 0.775rem; color: #697184;">{{ b.customer_phone }}</div>
+                                        </td>
+                                        <td>
+                                             <div style="font-weight: 600; color: #413F3D;">{{ b.Shop_name if b.Shop_name else b.pro_name }}</div>
+                                             <div style="font-size: 0.775rem; color: #697184; font-weight: 600;">{{ b.Location }}</div>
+                                        </td>
+                                        <td>
+                                             <div style="font-weight: 600; color: #413F3D;">{{ b.Booking_date }}</div>
+                                             <div style="font-size: 0.775rem; color: #697184;">{{ b.Booking_time }}</div>
+                                        </td>
+                                        <td>
+                                             <div style="font-weight: 700; color: #413F3D;">₹{{ b.Charge }}</div>
+                                             <div style="font-size: 0.775rem; color: #413F3D; font-weight: 700;">Adv: ₹{{ b.advance_amount }} ({{ b.advance_percentage }}%)</div>
+                                        </td>
+                                        <td>
+                                             {% if b.Status == 'pending' %}
+                                                 <span class="badge" style="background: rgba(245, 158, 11, 0.12); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3);">⏳ Pending</span>
+                                             {% elif b.Status == 'accepted' %}
+                                                 <span class="badge" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3);">✅ Accepted</span>
+                                             {% elif b.Status == 'completed' %}
+                                                 <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3);">🎉 Completed</span>
+                                             {% elif b.Status == 'cancelled' %}
+                                                 <span class="badge" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3);">❌ Cancelled</span>
+                                             {% endif %}
+                                        </td>
+                                        <td>
+                                             <span style="font-size: 0.8rem; color: #413F3D; font-weight: 600;">{{ b.payment_status }}</span>
+                                        </td>
+                                        <td>
+                                             <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                                                 {% if b.Status != 'accepted' %}
+                                                     <a href="/admin/update_booking_status/{{ b.Id }}/accepted" class="btn btn-sm btn-luxury-outline" style="font-size: 0.72rem; padding: 0.25rem 0.45rem; color: #1d4ed8 !important;" title="Set Accepted">
+                                                         ✓ Accept
+                                                     </a>
+                                                 {% endif %}
+                                                 {% if b.Status != 'completed' %}
+                                                     <a href="/admin/update_booking_status/{{ b.Id }}/completed" class="btn btn-sm btn-luxury-outline" style="font-size: 0.72rem; padding: 0.25rem 0.45rem; color: #047857 !important;" title="Set Completed">
+                                                         ★ Done
+                                                     </a>
+                                                 {% endif %}
+                                                 {% if b.Status != 'cancelled' %}
+                                                     <a href="/admin/update_booking_status/{{ b.Id }}/cancelled" class="btn btn-sm btn-luxury-outline" style="font-size: 0.72rem; padding: 0.25rem 0.45rem; color: #dc2626 !important;" title="Set Cancelled">
+                                                         ✕ Cancel
+                                                     </a>
+                                                 {% endif %}
+                                                 <a href="/booking_completed/{{ b.Id }}" class="btn btn-sm btn-luxury-outline" style="font-size: 0.72rem; padding: 0.25rem 0.45rem;" title="View Receipt">
+                                                     📄 Bill
+                                                 </a>
+                                                 <a href="/admin/delete_booking/{{ b.Id }}" class="btn btn-sm" style="font-size: 0.72rem; padding: 0.25rem 0.45rem; background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 700;" onclick="return confirm('Permanently delete booking #{{ b.Id }}?');">
+                                                     🗑️
+                                                 </a>
+                                             </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 3rem 1rem; color: #697184;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📭</div>
+                        <p style="margin: 0; font-size: 1rem;">No bookings found in platform database.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- TAB 2: VERIFIED PROFESSIONALS -->
+        <div id="tab-professionals" class="admin-tab-content" style="display: none;">
+            <div style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-sm);">
+                <div class="page-header" style="margin-bottom: 1.5rem; border-bottom: 1px solid #B1A6A4; padding-bottom: 1rem;">
+                    <div>
+                        <h2 style="font-family: var(--font-heading); font-size: 1.45rem; color: #413F3D; margin: 0;">
+                            Verified Professionals & Studios
+                        </h2>
+                        <p style="color: #697184; font-size: 0.88rem; margin-top: 0.25rem;">
+                            Listing of registered artisans, storefront details, payment gateway UPI credentials, and ratings.
+                        </p>
+                    </div>
+                </div>
+
+                {% if professionals %}
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">S.No.</th>
+                                    <th>Pro No.</th>
+                                    <th>Artisan Name</th>
+                                    <th>Studio Name</th>
+                                    <th>City & State</th>
+                                    <th>Phone & Email</th>
+                                    <th>Payment Scanner QR</th>
+                                    <th>Rating</th>
+                                    <th>Admin Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in professionals %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge" style="background: #D8CFD0; color: #413F3D; font-weight: 800;">{{ loop.index }}</span>
+                                        </td>
+                                        <td><b style="color: #413F3D;">#{{ p.pro_no }}</b></td>
+                                        <td><b style="color: #413F3D;">{{ p.Name }}</b></td>
+                                        <td>
+                                            {% if p.Shop_name %}
+                                                <span style="color: #413F3D; font-weight: 700;">👑 {{ p.Shop_name }}</span>
+                                            {% else %}
+                                                <span style="color: #697184; font-style: italic;">Profile Incomplete</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="color: #413F3D;">{{ p.City if p.City else '—' }}, {{ p.State if p.State else '' }}</td>
+                                        <td>
+                                            <div style="color: #413F3D; font-weight: 600;">📞 {{ p.Phone }}</div>
+                                            <div style="font-size: 0.775rem; color: #697184;">{{ p.Email }}</div>
+                                        </td>
+                                        <td>
+                                            {% if p.qr_code %}
+                                                <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3);">Active QR ✅</span>
+                                                {% if p.upi_id %}
+                                                    <div style="font-size: 0.725rem; color: #697184; margin-top: 0.2rem;">{{ p.upi_id }}</div>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge" style="background: rgba(245, 158, 11, 0.12); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3);">No QR</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div style="color: #413F3D; font-weight: 700;">★ {{ p.avg_rating }}</div>
+                                            <div style="font-size: 0.75rem; color: #697184;">({{ p.review_count }} reviews)</div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; gap: 0.35rem;">
+                                                <a href="/professional/{{ p.user_id }}" target="_blank" class="btn btn-sm btn-luxury-outline" style="font-size: 0.72rem; padding: 0.25rem 0.5rem;">
+                                                    👁️ Profile
+                                                </a>
+                                                <a href="/admin/delete_user/{{ p.user_id }}" class="btn btn-sm" style="font-size: 0.72rem; padding: 0.25rem 0.5rem; background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 700;" onclick="return confirm('Permanently remove artisan account and studio #{{ p.user_id }}?');">
+                                                    🗑️
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 3rem 1rem; color: #697184;">
+                        <p style="margin: 0;">No professionals registered yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- TAB 3: REGISTERED CLIENTS -->
+        <div id="tab-customers" class="admin-tab-content" style="display: none;">
+            <div style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-sm);">
+                <div class="page-header" style="margin-bottom: 1.5rem; border-bottom: 1px solid #B1A6A4; padding-bottom: 1rem;">
+                    <div>
+                        <h2 style="font-family: var(--font-heading); font-size: 1.45rem; color: #413F3D; margin: 0;">
+                            Registered Clients Directory
+                        </h2>
+                        <p style="color: #697184; font-size: 0.88rem; margin-top: 0.25rem;">
+                            Direct customer accounts, phone contacts, registration timestamp, and completed booking counts.
+                        </p>
+                    </div>
+                </div>
+
+                {% if customers %}
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">S.No.</th>
+                                    <th>Client No.</th>
+                                    <th>Client Name</th>
+                                    <th>Email Address</th>
+                                    <th>Contact Phone</th>
+                                    <th>Registered Date</th>
+                                    <th>Bookings Placed</th>
+                                    <th>Admin Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in customers %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge" style="background: #D8CFD0; color: #413F3D; font-weight: 800;">{{ loop.index }}</span>
+                                        </td>
+                                        <td><b style="color: #413F3D;">#{{ c.client_no }}</b></td>
+                                        <td><b style="color: #413F3D;">{{ c.Name }}</b></td>
+                                        <td style="color: #697184;">{{ c.Email }}</td>
+                                        <td>
+                                            <a href="tel:{{ c.Phone }}" style="color: #413F3D; font-weight: 600;">{{ c.Phone }}</a>
+                                        </td>
+                                        <td style="color: #697184; font-size: 0.85rem;">{{ c.Created_at }}</td>
+                                        <td>
+                                            <span class="badge" style="background: #D8CFD0; color: #413F3D; border: 1px solid #B1A6A4; font-weight: 700;">
+                                                {{ c.booking_count }} Bookings
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="/admin/delete_user/{{ c.Id }}" class="btn btn-sm" style="font-size: 0.72rem; padding: 0.25rem 0.5rem; background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 700;" onclick="return confirm('Permanently remove customer account #{{ c.client_no }}?');">
+                                                🗑️ Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 3rem 1rem; color: #697184;">
+                        <p style="margin: 0;">No client accounts found.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- TAB 4: JOB MARKETPLACE -->
+        <div id="tab-jobs" class="admin-tab-content" style="display: none;">
+            <div style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-sm);">
+                <div class="page-header" style="margin-bottom: 1.5rem; border-bottom: 1px solid #B1A6A4; padding-bottom: 1rem;">
+                    <div>
+                        <h2 style="font-family: var(--font-heading); font-size: 1.45rem; color: #413F3D; margin: 0;">
+                            Studio Job Offers & Openings (Posted by Shop Owners)
+                        </h2>
+                        <p style="color: #697184; font-size: 0.88rem; margin-top: 0.25rem;">
+                            Direct hiring positions published by verified studios with base salary, work commission %, and shift timings.
+                        </p>
+                    </div>
+                </div>
+
+                {% if jobs %}
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">S.No.</th>
+                                    <th>Offer ID</th>
+                                    <th>Studio & Owner</th>
+                                    <th>Job Title</th>
+                                    <th>Category</th>
+                                    <th>Base Salary</th>
+                                    <th>Work % Share</th>
+                                    <th>Shifts</th>
+                                    <th>Applicants</th>
+                                    <th>Status</th>
+                                    <th>Admin Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for j in jobs %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge" style="background: #D8CFD0; color: #413F3D; font-weight: 800;">{{ loop.index }}</span>
+                                        </td>
+                                        <td><b style="color: #413F3D;">#{{ j.id }}</b></td>
+                                        <td>
+                                            <div style="font-weight: 700; color: #413F3D;">👑 {{ j.Shop_name or j.contact_name }}</div>
+                                            <div style="font-size: 0.75rem; color: #697184;">Owner: {{ j.Owner_name or j.contact_name }}</div>
+                                        </td>
+                                        <td>
+                                            <a href="/jobs/{{ j.id }}" target="_blank" style="font-weight: 700; color: #413F3D; text-decoration: none;">{{ j.title }}</a>
+                                            <div style="font-size: 0.75rem; color: #697184;">📍 {{ j.city }}</div>
+                                        </td>
+                                        <td><span class="badge" style="background: #F2F1EF; border: 1px solid #B1A6A4; color: #413F3D; font-weight: 600;">{{ j.category }}</span></td>
+                                        <td style="color: #413F3D; font-weight: 800;">
+                                            💰 {{ j.salary if j.salary else ('₹' + j.budget if j.budget else 'Negotiable') }}
+                                        </td>
+                                        <td>
+                                            {% if j.commission_percentage %}
+                                                <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 700;">
+                                                    ⚡ {{ j.commission_percentage }}
+                                                </span>
+                                            {% else %}
+                                                <span style="color: #697184;">—</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="font-size: 0.8rem; color: #697184;">
+                                            {{ j.working_hours or 'Flexible' }}
+                                        </td>
+                                        <td>
+                                            <span class="badge" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.25); font-weight: 700;">
+                                                📥 {{ j.applicant_count }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if j.status == 'open' %}
+                                                <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 700;">Open</span>
+                                            {% else %}
+                                                <span class="badge" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 700;">Closed</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; gap: 0.35rem;">
+                                                <a href="/admin/toggle_job/{{ j.id }}" class="btn btn-sm btn-luxury-outline" style="font-size: 0.72rem; padding: 0.25rem 0.5rem;" title="Toggle Open/Close">
+                                                    {% if j.status == 'open' %}Close{% else %}Open{% endif %}
+                                                </a>
+                                                <a href="/admin/delete_job/{{ j.id }}" class="btn btn-sm" style="font-size: 0.72rem; padding: 0.25rem 0.5rem; background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 700;" onclick="return confirm('Permanently delete job offer #{{ j.id }}?');">
+                                                    🗑️
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 3rem 1rem; color: #697184;">
+                        <p style="margin: 0;">No marketplace job posts found.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- TAB 5: PLATFORM ADMINISTRATORS -->
+        <div id="tab-administrators" class="admin-tab-content" style="display: none;">
+            <div style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-sm);">
+                <div class="page-header" style="margin-bottom: 1.5rem; border-bottom: 1px solid #B1A6A4; padding-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h2 style="font-family: var(--font-heading); font-size: 1.45rem; color: #413F3D; margin: 0;">
+                            Registered Platform Administrators
+                        </h2>
+                        <p style="color: #697184; font-size: 0.88rem; margin-top: 0.25rem;">
+                            Personnel with verified master privileges to manage telemetry, jobs, users, and platform orders.
+                        </p>
+                    </div>
+                    <a href="/admin/register" class="btn btn-gold btn-sm" style="font-weight: 700;">
+                        ➕ Register New Administrator
+                    </a>
+                </div>
+
+                {% if administrators %}
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">S.No.</th>
+                                    <th>Admin No.</th>
+                                    <th>Administrator Name</th>
+                                    <th>Email Address</th>
+                                    <th>Contact Phone</th>
+                                    <th>Enrolled Date</th>
+                                    <th>Role Badge</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for a in administrators %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge" style="background: #D8CFD0; color: #413F3D; font-weight: 800;">{{ loop.index }}</span>
+                                        </td>
+                                        <td><b style="color: #413F3D;">#{{ a.admin_no }}</b></td>
+                                        <td><b style="color: #413F3D;">{{ a.Name }}</b></td>
+                                        <td style="color: #697184;">{{ a.Email }}</td>
+                                        <td>
+                                            <a href="tel:{{ a.Phone }}" style="color: #413F3D; font-weight: 600;">{{ a.Phone }}</a>
+                                        </td>
+                                        <td style="color: #697184; font-size: 0.85rem;">{{ a.Created_at }}</td>
+                                        <td>
+                                            <span class="badge" style="background: #ffd700; color: #000000; font-weight: 800; border: 1px solid rgba(191, 149, 63, 0.8);">
+                                                👑 MASTER ADMIN
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 3rem 1rem; color: #697184;">
+                        <p style="margin: 0;">No individual administrator accounts registered yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <script>
+            function showAdminTab(tabName, btnElem) {
+                // Hide all tabs
+                document.querySelectorAll('.admin-tab-content').forEach(function(el) {
+                    el.style.display = 'none';
+                });
+                // Remove active styling on buttons
+                document.querySelectorAll('.admin-tab-btn').forEach(function(btn) {
+                    btn.classList.remove('btn-gold');
+                    btn.classList.add('btn-luxury-outline');
+                });
+                // Show chosen tab
+                var target = document.getElementById('tab-' + tabName);
+                if (target) {
+                    target.style.display = 'block';
+                }
+                // Style clicked button
+                if (btnElem) {
+                    btnElem.classList.remove('btn-luxury-outline');
+                    btnElem.classList.add('btn-gold');
+                }
+            }
+        </script>
+
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}My Job Posts - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Header -->
+    <div class="page-header" style="align-items: flex-end; margin-bottom: 2rem;">
+        <div>
+            <h1 class="page-title" style="font-family: var(--font-heading); font-size: 2.2rem; color: #413F3D; margin: 0 0 0.35rem;">
+                📂 My Job Need Posts
+            </h1>
+            <p class="page-subtitle" style="color: #697184; font-size: 0.95rem; margin: 0;">
+                Track applications received, close completed needs, or manage job postings.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <a href="/jobs" class="btn btn-luxury-outline">💼 Browse Jobs</a>
+            <a href="/jobs/post" class="btn btn-gold" style="font-weight: 800;">➕ Post New Need</a>
+        </div>
+    </div>
+
+    {% if posts %}
+        <div class="card" style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">S.No.</th>
+                            <th>Job Title</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Location</th>
+                            <th>Salary & Commission</th>
+                            <th>Applicants</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in posts %}
+                            <tr>
+                                <td>
+                                    <span class="badge" style="background: #D8CFD0; color: #413F3D; font-weight: 800;">{{ loop.index }}</span>
+                                </td>
+
+                                <td>
+                                    <b><a href="/jobs/{{ p.id }}" style="color: #413F3D;">{{ p.title }}</a></b>
+                                    <div style="font-size: 0.775rem; color: #697184; margin-top: 0.2rem;">
+                                        ID #{{ p.id }} • Posted: {{ p.created_at.strftime('%d %b %Y') if p.created_at else '' }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {% if p.post_type == 'need_worker' %}
+                                        <span class="badge" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3); font-weight: 800;">
+                                            🛠️ Worker Needed
+                                        </span>
+                                    {% else %}
+                                        <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800;">
+                                            🙋 Seeking Work
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td style="color: #413F3D;">{{ p.category }}</td>
+
+                                <td style="color: #697184;">{{ p.city }}</td>
+
+                                <td>
+                                    <div style="font-weight: 700; color: #413F3D;">
+                                        💰 {{ p.salary if p.salary else ('₹' + p.budget if p.budget else 'Negotiable') }}
+                                    </div>
+                                    {% if p.commission_percentage %}
+                                        <div style="font-size: 0.775rem; color: #047857; font-weight: 700; margin-top: 0.2rem;">
+                                            ⚡ {{ p.commission_percentage }} Share
+                                        </div>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <a href="/jobs/{{ p.id }}" class="badge" style="background: #F2F1EF; border: 1px solid #B1A6A4; color: #413F3D; font-weight: 800; text-decoration: none;">
+                                        📥 {{ p.applicant_count }} Applicants
+                                    </a>
+                                </td>
+
+                                <td>
+                                    {% if p.status == 'open' %}
+                                        <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800;">
+                                            ● Open
+                                        </span>
+                                    {% else %}
+                                        <span class="badge" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 800;">
+                                            ● Closed
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div style="display: flex; gap: 0.4rem;">
+                                        <a href="/jobs/{{ p.id }}" class="btn btn-sm btn-luxury-outline" title="View Details">
+                                            View
+                                        </a>
+                                        <a href="/jobs/toggle_status/{{ p.id }}" class="btn btn-sm btn-luxury-outline" title="Toggle Status">
+                                            {% if p.status == 'open' %}Close{% else %}Reopen{% endif %}
+                                        </a>
+                                        <a href="/jobs/delete/{{ p.id }}" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3);" onclick="return confirm('Delete this job post permanently?');" title="Delete">
+                                            🗑️
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 4.5rem 2rem; background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+            <div style="font-size: 3.5rem; margin-bottom: 1rem;">📭</div>
+            <h3 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: #413F3D; margin-bottom: 0.5rem;">
+                You Haven't Posted Any Jobs Yet
+            </h3>
+            <p style="color: #697184; max-width: 500px; margin: 0 auto 1.5rem; font-size: 0.95rem; line-height: 1.6;">
+                Post your worker requirement or skilled job need. Local verified professionals and artisans will reach out to you directly.
+            </p>
+            <a href="/jobs/post" class="btn btn-gold btn-lg" style="font-weight: 800;">
+                ➕ Post a Job Need
+            </a>
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 2rem;">
+        {% if session.get('user_type') == 'customer' %}
+            <a href="/customer_dashboard" class="btn btn-luxury-outline">⬅ Dashboard</a>
+        {% elif session.get('user_type') == 'professional' %}
+            <a href="/professional_dashboard" class="btn btn-luxury-outline">⬅ Dashboard</a>
+        {% else %}
+            <a href="/" class="btn btn-luxury-outline">⬅ Home</a>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

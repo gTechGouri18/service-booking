@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Client Concierge - ServiceHub Luxury Experience{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 5rem;">
+
+    <!-- Dashboard Header -->
+    <div class="page-header" style="align-items: flex-end; padding-bottom: 1.75rem; border-bottom: 1.5px solid #B1A6A4; margin-bottom: 2.5rem;">
+        <div>
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: 800; color: #413F3D; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.4rem;">
+                <span>✦</span> Client Concierge
+                <span class="badge" style="background: #D8CFD0; color: #413F3D; font-weight: 800; padding: 0.2rem 0.55rem; font-size: 0.75rem;">Client No. #{{ client_no }}</span>
+            </div>
+            <h1 class="page-title" style="margin: 0; font-family: var(--font-heading); font-size: 2.3rem; color: #413F3D;">
+                Welcome, {{ session.get('user_name', 'Client') }}
+            </h1>
+            <p class="page-subtitle" style="margin-top: 0.35rem; color: #697184;">
+                Oversee priority appointments, post specific artisan job requirements, and manage reservations.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="/find_services" class="btn btn-gold">🔍 Explore Services</a>
+            <a href="/jobs/post" class="btn btn-luxury-outline">➕ Post Job Need</a>
+        </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="grid-3" style="margin-bottom: 3rem;">
+        <div class="stat-widget" style="background: #ffffff; border: 1.5px solid #B1A6A4; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+            <div class="dash-icon" style="background: rgba(59, 130, 246, 0.12); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.25);">📋</div>
+            <div>
+                <div class="stat-number" style="font-family: var(--font-heading); color: #413F3D; font-size: 2.1rem; font-weight: 800;">{{ booking_count }}</div>
+                <div class="stat-label" style="color: #697184; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Total Appointments</div>
+            </div>
+        </div>
+
+        <div class="stat-widget" style="background: #ffffff; border: 1.5px solid #B1A6A4; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+            <div class="dash-icon" style="background: rgba(168, 85, 247, 0.12); color: #7e22ce; border: 1px solid rgba(168, 85, 247, 0.25);">💼</div>
+            <div>
+                <div class="stat-number" style="font-family: var(--font-heading); color: #413F3D; font-size: 2.1rem; font-weight: 800;">{{ job_count }}</div>
+                <div class="stat-label" style="color: #697184; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Posted Job Needs</div>
+            </div>
+        </div>
+
+        <div class="stat-widget" style="background: #ffffff; border: 1.5px solid #B1A6A4; padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+            <div class="dash-icon" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.25);">⚡</div>
+            <div>
+                <div class="stat-number" style="font-family: var(--font-heading); color: #413F3D; font-size: 2.1rem; font-weight: 800;">VIP</div>
+                <div class="stat-label" style="color: #697184; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Account Status</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Action Cards Grid -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.45rem; font-weight: 700; color: #413F3D; font-family: var(--font-heading); margin: 0;">
+            Concierge Services & Portals
+        </h2>
+        <span style="font-size: 0.85rem; color: #697184; font-weight: 700;">
+            ✦ Direct Reservation Access
+        </span>
+    </div>
+
+    <div class="grid-3" style="margin-bottom: 3.5rem;">
+        <!-- Find Services -->
+        <a href="/find_services" class="dash-card" style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 1.75rem; transition: var(--transition); box-shadow: var(--shadow-sm);">
+            <div>
+                <div class="dash-icon" style="background: rgba(59, 130, 246, 0.12); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.25); margin-bottom: 1rem;">🔍</div>
+                <h3 class="card-title" style="color: #413F3D; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem;">Discover Artisans & Studios</h3>
+                <p style="color: #697184; font-size: 0.88rem; line-height: 1.6; margin: 0;">
+                    Explore curated master stylists, luxury spa specialists, certified electricians, and HVAC artisans.
+                </p>
+            </div>
+            <div style="margin-top: 1.5rem; font-weight: 700; color: #413F3D; font-size: 0.9rem;">
+                Explore Studios &rarr;
+            </div>
+        </a>
+
+        <!-- My Bookings -->
+        <a href="/my_bookings" class="dash-card" style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 1.75rem; transition: var(--transition); box-shadow: var(--shadow-sm);">
+            <div>
+                <div class="dash-icon" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.25); margin-bottom: 1rem;">📋</div>
+                <h3 class="card-title" style="color: #413F3D; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem;">My Reservations & Bills</h3>
+                <p style="color: #697184; font-size: 0.88rem; line-height: 1.6; margin: 0;">
+                    Track confirmation status, review 20% advance token payments, download receipts, and submit reviews.
+                </p>
+            </div>
+            <div style="margin-top: 1.5rem; font-weight: 700; color: #413F3D; font-size: 0.9rem;">
+                View Reservations &rarr;
+            </div>
+        </a>
+
+        <!-- Job Need Portal -->
+        <a href="/jobs" class="dash-card" style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 1.75rem; transition: var(--transition); box-shadow: var(--shadow-sm);">
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <div class="dash-icon" style="background: rgba(236, 72, 153, 0.12); color: #be185d; border: 1px solid rgba(236, 72, 153, 0.25);">💼</div>
+                    <span class="badge" style="background: #D8CFD0; color: #413F3D; border: 1px solid #B1A6A4; font-size: 0.75rem; font-weight: 800;">Marketplace</span>
+                </div>
+                <h3 class="card-title" style="color: #413F3D; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem;">Job Needs Portal</h3>
+                <p style="color: #697184; font-size: 0.88rem; line-height: 1.6; margin: 0;">
+                    Require emergency repairs or custom artisan projects? Broadcast your requirements to top local providers.
+                </p>
+            </div>
+            <div style="margin-top: 1.5rem; font-weight: 700; color: #413F3D; font-size: 0.9rem;">
+                Open Marketplace &rarr;
+            </div>
+        </a>
+
+        <!-- My Profile -->
+        <a href="/profile" class="dash-card" style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 1.75rem; transition: var(--transition); box-shadow: var(--shadow-sm);">
+            <div>
+                <div class="dash-icon" style="background: rgba(99, 102, 241, 0.12); color: #4338ca; border: 1px solid rgba(99, 102, 241, 0.25); margin-bottom: 1rem;">👤</div>
+                <h3 class="card-title" style="color: #413F3D; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem;">Client Profile & Security</h3>
+                <p style="color: #697184; font-size: 0.88rem; line-height: 1.6; margin: 0;">
+                    Update verified mobile number, contact email, and manage security credentials.
+                </p>
+            </div>
+            <div style="margin-top: 1.5rem; font-weight: 700; color: #413F3D; font-size: 0.9rem;">
+                Edit Profile &rarr;
+            </div>
+        </a>
+    </div>
+
+    <!-- Recent Bookings Preview -->
+    <div style="margin-top: 3rem; background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-sm);">
+        <div class="page-header" style="margin-bottom: 1.5rem; border-bottom: 1.5px solid #B1A6A4; padding-bottom: 1rem;">
+            <div>
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: #413F3D; font-family: var(--font-heading); margin: 0;">
+                    Recent Reservations Preview
+                </h2>
+            </div>
+            <a href="/my_bookings" class="btn btn-sm btn-luxury-outline">View All Bookings &rarr;</a>
+        </div>
+
+        {% if recent_bookings %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">S.No.</th>
+                            <th>Booking ID</th>
+                            <th>Studio / Provider</th>
+                            <th>Service</th>
+                            <th>Date & Time</th>
+                            <th>Location</th>
+                            <th>Total Bill</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in recent_bookings %}
+                            <tr>
+                                <td>
+                                    <span class="badge" style="background: #D8CFD0; color: #413F3D; font-weight: 800;">{{ loop.index }}</span>
+                                </td>
+                                <td><b style="color: #413F3D;">#{{ b.Id }}</b></td>
+                                <td>
+                                    <b style="color: #413F3D;">{{ b.Shop_name }}</b>
+                                    <div style="font-size: 0.775rem; color: #697184;">{{ b.Owner_name }}</div>
+                                </td>
+                                <td><b style="color: #413F3D;">{{ b.Service }}</b></td>
+                                <td>{{ b.Booking_date }} ({{ b.Booking_time }})</td>
+                                <td>{{ b.Location }}</td>
+                                <td>
+                                    {% if b.Charge == 0 and b.Status == 'pending' %}
+                                        <span style="color: #b45309; font-weight: 700;">Rate Pending</span>
+                                    {% else %}
+                                        <b style="color: #413F3D;">₹{{ b.Charge }}</b>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if b.Status == 'pending' %}
+                                        <span class="badge" style="background: rgba(245, 158, 11, 0.12); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3);">⏳ Pending</span>
+                                    {% elif b.Status == 'accepted' %}
+                                        <span class="badge" style="background: rgba(59, 130, 246, 0.12); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.3);">✅ Accepted</span>
+                                    {% elif b.Status == 'completed' %}
+                                        <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3);">🎉 Completed</span>
+                                    {% elif b.Status == 'cancelled' %}
+                                        <span class="badge" style="background: rgba(239, 68, 68, 0.12); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.3);">❌ Cancelled</span>
+                                    {% else %}
+                                        <span class="badge">{{ b.Status }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem 1rem; color: #697184;">
+                <p style="margin-bottom: 1.25rem;">You have not placed any service appointments yet.</p>
+                <a href="/find_services" class="btn btn-gold">Discover Services to Book</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

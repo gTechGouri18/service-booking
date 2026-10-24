@@ -1,0 +1,1038 @@
+{% extends "base.html" %}
+
+{% block title %}{{ shop.Shop_name }} - Master Artisan Profile & Portfolio - ServiceHub{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet OpenStreetMap CDN for Travel Coverage Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 5rem;">
+
+    <!-- Navigation Breadcrumb -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <a href="/find_services" class="btn btn-sm btn-luxury-outline" style="font-weight: 700;">
+            ⬅ Back to Discover Services
+        </a>
+        <div style="display: flex; gap: 0.6rem;">
+            <a href="tel:{{ shop.Phone }}" class="btn btn-sm btn-luxury-outline" style="font-weight: 700;">
+                📞 Call {{ shop.Phone }}
+            </a>
+            <a href="https://wa.me/91{{ shop.Phone }}" target="_blank" class="btn btn-sm btn-luxury-outline" style="border-color: #22c55e; color: #15803d !important; font-weight: 700;">
+                💬 WhatsApp
+            </a>
+            {% if session.get('user_type') != 'professional' %}
+            <a href="#book-service-section" class="btn btn-sm btn-gold" style="font-weight: 800;">
+                📅 Jump to Book Service &darr;
+            </a>
+            {% elif session.get('user_id') == shop.User_id %}
+            <a href="/shop_profile" class="btn btn-sm btn-gold" style="font-weight: 800;">
+                🏪 Edit Studio Profile
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <!-- =========================================================================
+         VIP PERSONALIZED WELCOME BANNER (Customer Name + Shop Name)
+         ========================================================================= -->
+    <div class="welcome-banner" style="background: linear-gradient(135deg, #413F3D 0%, #697184 100%); border: 1.5px solid #B1A6A4; border-radius: var(--radius-md); padding: 1.5rem 2.25rem; margin-bottom: 2.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem; box-shadow: var(--shadow-md);">
+        <div>
+            <div style="color: #D8CFD0; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem;">
+                ✨ VIP CLIENT GREETING
+            </div>
+            {% if session.get('user_name') %}
+                <h2 style="font-family: var(--font-heading); font-size: 2rem; color: #F2F1EF; margin: 0; line-height: 1.25;">
+                    Welcome, <span style="color: #D8CFD0;">{{ session.user_name }}</span> to <span style="color: #ffffff;">{{ shop.Shop_name }}</span>!
+                </h2>
+                <p style="color: #D8CFD0; font-size: 0.95rem; margin: 0.35rem 0 0;">
+                    Welcome <b>{{ session.user_name }}</b>! Master <b>{{ shop.Owner_name }}</b> is delighted to host you at our verified studio.
+                </p>
+            {% else %}
+                <h2 style="font-family: var(--font-heading); font-size: 2rem; color: #F2F1EF; margin: 0; line-height: 1.25;">
+                    Welcome to <span style="color: #D8CFD0;">{{ shop.Shop_name }}</span>!
+                </h2>
+                <p style="color: #D8CFD0; font-size: 0.95rem; margin: 0.35rem 0 0;">
+                    Welcome! Master <b>{{ shop.Owner_name }}</b> is delighted to host you at our verified studio.
+                </p>
+            {% endif %}
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="tel:{{ shop.Phone }}" class="btn btn-sm btn-luxury-outline" style="border-color: #B1A6A4; color: #413F3D !important; font-weight: 700; padding: 0.65rem 1.1rem; background: #ffffff;">
+                📞 Call Owner
+            </a>
+            <a href="https://wa.me/91{{ shop.Phone }}" target="_blank" class="btn btn-sm btn-luxury-outline" style="border-color: #22c55e; color: #22c55e !important; font-weight: 700; padding: 0.65rem 1.1rem; background: #ffffff;">
+                💬 WhatsApp
+            </a>
+            {% if session.get('user_type') != 'professional' %}
+            <a href="#book-service-section" class="btn btn-sm btn-gold" style="font-weight: 800; padding: 0.65rem 1.3rem;">
+                📅 Book Service &darr;
+            </a>
+            {% elif session.get('user_id') == shop.User_id %}
+            <a href="/my_services" class="btn btn-sm btn-gold" style="font-weight: 800; padding: 0.65rem 1.3rem;">
+                💼 Manage Services
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <!-- =========================================================================
+         STAGE 1: 3D INTRO VIDEO & SHOP OWNER DETAILS
+         ========================================================================= -->
+    <section id="owner-intro-section" style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lux); margin-bottom: 3.5rem;">
+        
+        <!-- Atmospheric Top Banner -->
+        <div style="position: relative; height: 260px; background: linear-gradient(135deg, #413F3D 0%, #697184 100%); overflow: hidden;">
+            {% if works and works[0].image %}
+                <img src="{{ url_for('static', filename='uploads/' + works[0].image) }}" alt="{{ shop.Shop_name }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.45; filter: blur(2px);">
+            {% elif 'salon' in shop.Work_details.lower() or 'hair' in shop.Work_details.lower() or 'beauty' in shop.Work_details.lower() %}
+                <img src="{{ url_for('static', filename='images/parlour_work.jpg') }}" alt="{{ shop.Shop_name }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.45;">
+            {% elif 'electric' in shop.Work_details.lower() or 'wire' in shop.Work_details.lower() %}
+                <img src="{{ url_for('static', filename='images/electrician_work.jpg') }}" alt="{{ shop.Shop_name }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.45;">
+            {% elif 'plumb' in shop.Work_details.lower() or 'pipe' in shop.Work_details.lower() %}
+                <img src="{{ url_for('static', filename='images/plumber_work.jpg') }}" alt="{{ shop.Shop_name }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.45;">
+            {% elif 'ac' in shop.Work_details.lower() or 'repair' in shop.Work_details.lower() %}
+                <img src="{{ url_for('static', filename='images/ac_repair_work.jpg') }}" alt="{{ shop.Shop_name }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.45;">
+            {% else %}
+                <img src="{{ url_for('static', filename='images/hero_cream_gold.jpg') }}" alt="{{ shop.Shop_name }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.45;">
+            {% endif %}
+            
+            <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(65, 63, 61, 0.95) 0%, rgba(65, 63, 61, 0.3) 100%);"></div>
+
+            <div style="position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                <span class="badge" style="background: rgba(16, 185, 129, 0.25); border: 1.5px solid rgba(16, 185, 129, 0.6); color: #34d399; font-weight: 800; font-size: 0.85rem; backdrop-filter: blur(8px); padding: 0.4rem 0.9rem;">
+                    <span class="pulse-dot"></span> 100% Verified Studio
+                </span>
+                {% if shop.qr_code %}
+                    <span class="badge" style="background: #D8CFD0; border: 1.5px solid #B1A6A4; color: #413F3D; font-weight: 800; font-size: 0.85rem; backdrop-filter: blur(8px); padding: 0.4rem 0.9rem;">
+                        📱 QR Scanner Configured
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Master Artisan Profile Header Box -->
+        <div style="padding: 2.5rem 3rem; position: relative;">
+            
+            <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+                
+                <!-- Large Artisan Avatar / Portrait Frame -->
+                <div style="position: relative; margin-top: -85px;">
+                    <div style="width: 140px; height: 140px; border-radius: 50%; background: linear-gradient(135deg, #413F3D, #697184); border: 4px solid #ffffff; box-shadow: 0 10px 25px rgba(65, 63, 61, 0.35); display: flex; align-items: center; justify-content: center; font-size: 3.5rem; color: #F2F1EF; font-family: var(--font-heading); position: relative; overflow: hidden;">
+                        {% if works and works[0].image %}
+                            <img src="{{ url_for('static', filename='uploads/' + works[0].image) }}" alt="{{ shop.Owner_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <span>{{ shop.Owner_name[0] if shop.Owner_name else 'P' }}</span>
+                        {% endif %}
+                    </div>
+                    <span style="position: absolute; bottom: 5px; right: 5px; width: 36px; height: 36px; background: #10b981; border: 3px solid #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: white;" title="Verified Pro">
+                        ✓
+                    </span>
+                </div>
+
+                <!-- Artisan Identity Details -->
+                <div style="flex: 1; min-width: 300px;">
+                    
+                    <div style="display: inline-flex; align-items: center; gap: 0.5rem; color: #413F3D; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.35rem;">
+                        <span>👑</span> Master Professional & Shop Owner
+                    </div>
+
+                    <h1 style="font-family: var(--font-heading); font-size: 2.6rem; color: #413F3D; margin: 0 0 0.4rem; line-height: 1.2;">
+                        {{ shop.Shop_name }}
+                    </h1>
+
+                    <div style="font-size: 1.25rem; font-weight: 700; color: #413F3D; margin-bottom: 0.75rem;">
+                        Master In-Charge: <span style="color: #413F3D;">{{ shop.Owner_name }}</span>
+                    </div>
+
+                    <!-- Meta Badges (Location, Coverage, Ratings) -->
+                    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.25rem;">
+                        <span class="badge" style="background: #D8CFD0; border: 1.5px solid #B1A6A4; color: #413F3D; font-size: 0.9rem; font-weight: 800; padding: 0.45rem 1rem;">
+                            ★ {{ avg_rating }} Rating ({{ total_reviews }} Client Reviews)
+                        </span>
+                        <span class="badge" style="background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.35); color: #047857; font-size: 0.9rem; font-weight: 800; padding: 0.45rem 1rem;">
+                            🎉 {{ completed_count }} Completed Orders
+                        </span>
+                        <span class="badge" style="background: #F2F1EF; border: 1px solid #B1A6A4; color: #697184; font-size: 0.9rem; padding: 0.45rem 1rem;">
+                            📍 Base: <b style="color: #413F3D;">{{ shop.City }}, {{ shop.State }}</b>
+                        </span>
+                        <span class="badge" style="background: #F2F1EF; border: 1px solid #B1A6A4; color: #697184; font-size: 0.9rem; padding: 0.45rem 1rem;">
+                            🎯 Coverage: <b style="color: #413F3D;">{{ shop.Service_area }}</b>
+                        </span>
+                    </div>
+
+                    <!-- Direct Instant Contact Bar -->
+                    <div style="display: flex; gap: 0.85rem; align-items: center; flex-wrap: wrap; padding-top: 0.5rem;">
+                        <a href="tel:{{ shop.Phone }}" class="btn btn-luxury-outline" style="font-weight: 700; padding: 0.85rem 1.4rem;">
+                            📞 Call {{ shop.Phone }} Direct
+                        </a>
+                        <a href="https://wa.me/91{{ shop.Phone }}" target="_blank" class="btn btn-luxury-outline" style="border-color: #22c55e; color: #15803d !important; font-weight: 700; padding: 0.85rem 1.4rem;">
+                            💬 WhatsApp Inquiry
+                        </a>
+                        {% if session.get('user_type') != 'professional' %}
+                        <a href="#book-service-section" class="btn btn-gold btn-lg" style="font-weight: 800; padding: 0.85rem 1.8rem; box-shadow: var(--shadow-md);">
+                            📅 Book Service Now &rarr;
+                        </a>
+                        {% elif session.get('user_id') == shop.User_id %}
+                        <a href="/my_works" class="btn btn-gold btn-lg" style="font-weight: 800; padding: 0.85rem 1.8rem;">
+                            🖼️ Manage Portfolio &rarr;
+                        </a>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+
+
+            <!-- -------------------------------------------------------------
+                 SHOP OWNER DETAILS & EXPERIENCE
+                 ------------------------------------------------------------- -->
+            <div style="margin-top: 2.25rem; background: #F2F1EF; border: 1.5px solid #B1A6A4; border-radius: var(--radius); padding: 2rem 2.5rem;">
+                
+                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.85rem;">
+                    <span style="font-size: 1.4rem; color: #413F3D;">✦</span>
+                    <h2 style="font-family: var(--font-heading); font-size: 1.5rem; color: #413F3D; margin: 0;">
+                        Shop Owner's Introduction & Profile
+                    </h2>
+                </div>
+                
+                <p style="font-size: 1.05rem; color: #413F3D; line-height: 1.85; margin: 0 0 1.5rem; white-space: pre-line; font-weight: 500;">
+                    {{ shop.Work_details }}
+                </p>
+
+                <!-- Detailed Shop Metrics Breakdown -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; background: #ffffff; border: 1px solid #B1A6A4; border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <div style="font-size: 0.75rem; color: #697184; text-transform: uppercase; font-weight: 700;">Shop Name</div>
+                        <div style="font-weight: 800; color: #413F3D; font-size: 1rem; margin-top: 0.15rem;">{{ shop.Shop_name }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #697184; text-transform: uppercase; font-weight: 700;">Master In Charge</div>
+                        <div style="font-weight: 800; color: #413F3D; font-size: 1rem; margin-top: 0.15rem;">{{ shop.Owner_name }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #697184; text-transform: uppercase; font-weight: 700;">Phone Contact</div>
+                        <div style="font-weight: 800; color: #413F3D; font-size: 1rem; margin-top: 0.15rem;">{{ shop.Phone }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #697184; text-transform: uppercase; font-weight: 700;">Base Studio</div>
+                        <div style="font-weight: 800; color: #413F3D; font-size: 1rem; margin-top: 0.15rem;">{{ shop.City }}, {{ shop.State }}</div>
+                    </div>
+                </div>
+
+                <!-- 4 Trust Assurance Pillars -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; border-top: 1px solid rgba(212, 175, 55, 0.35); padding-top: 1.25rem;">
+                    <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                        <span style="font-size: 1.4rem;">🎖️</span>
+                        <div>
+                            <div style="font-weight: 800; color: var(--text-primary); font-size: 0.92rem;">Certified Master Artisan</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">Verified credentials & industry experience.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                        <span style="font-size: 1.4rem;">💎</span>
+                        <div>
+                            <div style="font-weight: 800; color: var(--text-primary); font-size: 0.92rem;">Sanitized & Premium Tools</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">Hygienic equipment and genuine products.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                        <span style="font-size: 1.4rem;">⏱️</span>
+                        <div>
+                            <div style="font-weight: 800; color: var(--text-primary); font-size: 0.92rem;">Guaranteed On-Time Arrival</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">Punctual doorstep or studio appointments.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                        <span style="font-size: 1.4rem;">🔒</span>
+                        <div>
+                            <div style="font-weight: 800; color: var(--text-primary); font-size: 0.92rem;">20% Advance Token Safety</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">Remaining balance payable upon satisfaction.</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================================
+         STAGE 2: WORK PORTFOLIO & CRAFT GALLERY
+         ========================================================================= -->
+    <section id="works-portfolio-section" style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 2.75rem 3rem; box-shadow: var(--shadow-lux); margin-bottom: 3.5rem;">
+        
+        <!-- Section Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1.25rem; border-bottom: 1.5px solid #B1A6A4; padding-bottom: 1.5rem;">
+            <div>
+                <div style="display: inline-flex; align-items: center; gap: 0.5rem; color: #413F3D; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.35rem;">
+                    <span>📸</span> Real Craft & Project Showcase
+                </div>
+                <h2 style="font-family: var(--font-heading); font-size: 2.15rem; color: #413F3D; margin: 0 0 0.35rem;">
+                    What I Do & Work Portfolio
+                </h2>
+                <p style="color: #697184; font-size: 1rem; margin: 0; max-width: 720px; line-height: 1.6;">
+                    These are genuine photos of finished work and client appointments uploaded directly by <b>{{ shop.Owner_name }}</b>.
+                </p>
+            </div>
+            
+            {% if works %}
+                <span class="badge" style="background: #D8CFD0; border: 1.5px solid #B1A6A4; color: #413F3D; font-weight: 800; font-size: 0.95rem; padding: 0.5rem 1.1rem;">
+                    ✦ {{ works|length }} Photos Uploaded by Owner
+                </span>
+            {% endif %}
+        </div>
+
+        <!-- Portfolio Works Grid -->
+        {% if works %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.75rem;">
+                {% for w in works %}
+                    <div style="background: #F2F1EF; border: 1.5px solid #B1A6A4; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-lg)';" onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-sm)';">
+                        
+                        <!-- Work Image with Hover Zoom & Badge -->
+                        <div style="position: relative; height: 250px; overflow: hidden; background: #413F3D; cursor: pointer;" onclick="openImageModal('{{ url_for('static', filename='uploads/' + w.image) }}', '{{ w.title|replace('\'', '\\\'') }}', '{{ w.description|replace('\'', '\\\'') }}', '{{ (w.service_charge or '')|replace('\'', '\\\'') }}')">
+                            <img src="{{ url_for('static', filename='uploads/' + w.image) }}" alt="{{ w.title }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onmouseover="this.style.transform='scale(1.08)';" onmouseout="this.style.transform='scale(1)';">
+                            
+                            <span style="position: absolute; top: 1rem; left: 1rem; background: rgba(65, 63, 61, 0.9); backdrop-filter: blur(8px); color: #F2F1EF; border: 1.5px solid #B1A6A4; font-size: 0.78rem; font-weight: 800; padding: 0.3rem 0.8rem; border-radius: var(--radius-full);">
+                                ✦ Uploaded by Owner
+                            </span>
+
+                            {% if w.service_charge %}
+                            <span style="position: absolute; top: 1rem; right: 1rem; background: rgba(65, 63, 61, 0.95); backdrop-filter: blur(8px); color: #F2F1EF; border: 1.5px solid #ffd700; font-size: 0.88rem; font-weight: 900; padding: 0.35rem 0.85rem; border-radius: var(--radius-sm); box-shadow: 0 4px 12px rgba(0,0,0,0.25); z-index: 2;">
+                                💰 ₹{{ w.service_charge }}
+                            </span>
+                            {% endif %}
+
+                            <span style="position: absolute; bottom: 0.85rem; right: 0.85rem; background: rgba(0, 0, 0, 0.75); color: white; border-radius: var(--radius-sm); font-size: 0.75rem; padding: 0.25rem 0.55rem; backdrop-filter: blur(4px);">
+                                🔍 Click to Zoom
+                            </span>
+                        </div>
+
+                        <!-- Work Title & Details -->
+                        <div style="padding: 1.4rem 1.5rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                {% if w.service_charge %}
+                                <!-- Hairstyle Service Charge Highlight Strip (Immediately Below Photo) -->
+                                <div style="background: #ffffff; border: 1.5px solid #B1A6A4; border-left: 5px solid #413F3D; border-radius: var(--radius-sm); padding: 0.65rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                                    <div>
+                                        <div style="font-size: 0.72rem; font-weight: 800; color: #697184; text-transform: uppercase; letter-spacing: 0.08em;">
+                                            Hairstyle Service Charge
+                                        </div>
+                                        <div style="font-size: 0.88rem; font-weight: 800; color: #413F3D;">
+                                            {{ w.title }}
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 0.7rem; color: #697184; font-weight: 700; text-transform: uppercase;">Rate</div>
+                                        <div style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: #15803d; line-height: 1.1;">
+                                            ₹{{ w.service_charge }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: #413F3D; margin: 0 0 0.5rem; line-height: 1.4;">
+                                    {{ w.title }}
+                                </h3>
+                                
+                                <div style="font-size: 0.8rem; font-weight: 700; color: #413F3D; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">
+                                    Craft & Project Details:
+                                </div>
+
+                                <p style="font-size: 0.925rem; color: #697184; margin: 0 0 1.25rem; line-height: 1.6; white-space: pre-line;">
+                                    {{ w.description }}
+                                </p>
+                            </div>
+
+                            <div style="border-top: 1px solid #B1A6A4; padding-top: 0.95rem; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 0.8rem; color: #697184; font-weight: 600;">
+                                    {{ w.created_at.strftime('%d %b %Y') if w.created_at else 'Verified Craft' }}
+                                </span>
+                                {% if session.get('user_type') != 'professional' %}
+                                <a href="#book-service-section" class="btn btn-sm btn-gold" style="font-size: 0.825rem; font-weight: 800; padding: 0.45rem 0.9rem;">
+                                    📅 Book Similar Work &darr;
+                                </a>
+                                {% elif session.get('user_id') == shop.User_id %}
+                                <a href="/my_works" class="btn btn-sm btn-luxury-outline" style="font-size: 0.825rem; font-weight: 700; padding: 0.45rem 0.9rem;">
+                                    🖼️ Manage Showcase
+                                </a>
+                                {% else %}
+                                <span style="font-size: 0.78rem; color: #697184; font-weight: 600;">✦ Verified Craft</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <!-- Showcase Category Quality When Works Are Pending -->
+            <div style="background: #F2F1EF; border: 1.5px dashed #B1A6A4; border-radius: var(--radius-md); padding: 2rem; margin-bottom: 1.5rem;">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">✨</div>
+                    <h3 style="font-family: var(--font-heading); font-size: 1.3rem; color: #413F3D; margin: 0 0 0.35rem;">
+                        Verified Craftsmanship Showcase for {{ shop.Shop_name }}
+                    </h3>
+                    <p style="color: #697184; font-size: 0.9rem; margin: 0;">
+                        Master {{ shop.Owner_name }} performs these specialized services at certified platform standards:
+                    </p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+                    {% if 'salon' in shop.Work_details.lower() or 'hair' in shop.Work_details.lower() or 'beauty' in shop.Work_details.lower() %}
+                        <div style="background: #ffffff; border: 1px solid #B1A6A4; border-radius: var(--radius); overflow: hidden;">
+                            <img src="{{ url_for('static', filename='images/parlour_work.jpg') }}" alt="Salon Work" style="width: 100%; height: 210px; object-fit: cover;">
+                            <div style="padding: 1rem 1.25rem;">
+                                <div style="font-weight: 800; color: #413F3D; font-size: 1rem;">Bridal & Party Hair Styling</div>
+                                <div style="font-size: 0.85rem; color: #697184; margin-top: 0.3rem;">Precision haircut, blow dry, smoothing and couture party styling.</div>
+                            </div>
+                        </div>
+                        <div style="background: #ffffff; border: 1px solid #B1A6A4; border-radius: var(--radius); overflow: hidden;">
+                            <img src="{{ url_for('static', filename='images/spa_facial_luxury.jpg') }}" alt="Facial Work" style="width: 100%; height: 210px; object-fit: cover;">
+                            <div style="padding: 1rem 1.25rem;">
+                                <div style="font-weight: 800; color: #413F3D; font-size: 1rem;">Skin Rituals & Facial Therapy</div>
+                                <div style="font-size: 0.85rem; color: #697184; margin-top: 0.3rem;">Organic facial glow, bridal skincare rituals, and relaxation therapies.</div>
+                            </div>
+                        </div>
+                    {% elif 'electric' in shop.Work_details.lower() or 'wire' in shop.Work_details.lower() %}
+                        <div style="background: #ffffff; border: 1px solid #B1A6A4; border-radius: var(--radius); overflow: hidden;">
+                            <img src="{{ url_for('static', filename='images/electrician_work.jpg') }}" alt="Electrical Work" style="width: 100%; height: 210px; object-fit: cover;">
+                            <div style="padding: 1rem 1.25rem;">
+                                <div style="font-weight: 800; color: #413F3D; font-size: 1rem;">Smart Wiring & Architectural Lighting</div>
+                                <div style="font-size: 0.85rem; color: #697184; margin-top: 0.3rem;">Complete domestic wiring, MCB distribution, and chandelier installations.</div>
+                            </div>
+                        </div>
+                    {% elif 'ac' in shop.Work_details.lower() or 'repair' in shop.Work_details.lower() %}
+                        <div style="background: #ffffff; border: 1px solid #B1A6A4; border-radius: var(--radius); overflow: hidden;">
+                            <img src="{{ url_for('static', filename='images/ac_repair_work.jpg') }}" alt="AC Repair" style="width: 100%; height: 210px; object-fit: cover;">
+                            <div style="padding: 1rem 1.25rem;">
+                                <div style="font-weight: 800; color: #413F3D; font-size: 1rem;">Deep Jet AC Cleansing & Gas Refill</div>
+                                <div style="font-size: 0.85rem; color: #697184; margin-top: 0.3rem;">Split & inverter AC maintenance, filter jet washing, and cooling diagnosis.</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div style="background: #ffffff; border: 1px solid #B1A6A4; border-radius: var(--radius); overflow: hidden;">
+                            <img src="{{ url_for('static', filename='images/plumber_work.jpg') }}" alt="Plumbing Work" style="width: 100%; height: 210px; object-fit: cover;">
+                            <div style="padding: 1rem 1.25rem;">
+                                <div style="font-weight: 800; color: #413F3D; font-size: 1rem;">Sanitary Fittings & Rapid Leak Fix</div>
+                                <div style="font-size: 0.85rem; color: #697184; margin-top: 0.3rem;">Chrome fittings, pressure testing, and concealed pipe repairs.</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Trust Callout Below Gallery -->
+        <div style="margin-top: 2rem; background: #F2F1EF; border: 1.5px solid #B1A6A4; border-radius: var(--radius); padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem;">
+            <div>
+                <div style="font-weight: 800; color: #413F3D; font-size: 1.15rem;">
+                    ✨ Impressed with this quality work? Connect with {{ shop.Owner_name }} directly!
+                </div>
+                <div style="font-size: 0.925rem; color: #697184; margin-top: 0.25rem;">
+                    Book your date & time online below with guaranteed 20% advance token safety.
+                </div>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <a href="tel:{{ shop.Phone }}" class="btn btn-luxury-outline" style="font-weight: 700;">📞 Call Pro</a>
+                {% if session.get('user_type') != 'professional' %}
+                <a href="#book-service-section" class="btn btn-gold" style="font-weight: 800;">📅 Book Service Below &darr;</a>
+                {% elif session.get('user_id') == shop.User_id %}
+                <a href="/shop_profile" class="btn btn-gold" style="font-weight: 800;">🏪 Update Studio &darr;</a>
+                {% endif %}
+            </div>
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================================
+         STAGE 3: BOOK SERVICE OPTION
+         ========================================================================= -->
+    <section id="book-service-section" style="background: #ffffff; border: 2px solid #B1A6A4; border-radius: var(--radius-lg); padding: 3rem; box-shadow: var(--shadow-lux); margin-bottom: 3.5rem;">
+        
+        <!-- Section Header -->
+        <div style="margin-bottom: 2.25rem; border-bottom: 1.5px solid #B1A6A4; padding-bottom: 1.5rem;">
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; color: #413F3D; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.35rem;">
+                <span>📅</span> {% if session.get('user_type') == 'professional' %}Studio Service Offerings & Rates{% else %}Online Reservation & Transparent Rates{% endif %}
+            </div>
+            <h2 style="font-family: var(--font-heading); font-size: 2.35rem; color: #413F3D; margin: 0 0 0.4rem;">
+                {% if session.get('user_type') == 'professional' and session.get('user_id') == shop.User_id %}
+                    Your Studio Offerings & Rates
+                {% elif session.get('user_type') == 'professional' %}
+                    Services & Specialties Offered by {{ shop.Owner_name }}
+                {% else %}
+                    Book a Service with {{ shop.Owner_name }}
+                {% endif %}
+            </h2>
+            <p style="color: #697184; font-size: 1.05rem; margin: 0; line-height: 1.6;">
+                {% if session.get('user_type') == 'professional' and session.get('user_id') == shop.User_id %}
+                    This is your live rate card and service catalog as shown to customers. Use your artisan management tools to add new services or adjust visiting fees.
+                {% elif session.get('user_type') == 'professional' %}
+                    Browse standard rate cards and specialty offerings configured by this verified studio. Note: Service bookings are exclusively placed by registered client accounts.
+                {% else %}
+                    Select your desired service offering below or schedule a custom doorstep visit. Pay only a <b>20% advance token</b> now; pay the rest after you are 100% satisfied.
+                {% endif %}
+            </p>
+        </div>
+
+
+        <!-- A. UPFRONT SERVICES OFFERINGS -->
+        <div style="margin-bottom: 2.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.35rem; color: #413F3D; margin: 0;">
+                    ⚡ Available Services & Specialties
+                </h3>
+                <span style="font-size: 0.85rem; color: #697184; font-weight: 700;">
+                    Verified Studio Offerings
+                </span>
+            </div>
+
+            {% if services %}
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 1.35rem;">
+                    {% for s in services %}
+                        <div style="background: #F2F1EF; border: 1.5px solid #B1A6A4; border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); transition: transform 0.25s ease;" onmouseover="this.style.transform='translateY(-4px)';" onmouseout="this.style.transform='none';">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; gap: 0.5rem;">
+                                    <span class="badge" style="background: #D8CFD0; color: #413F3D; font-size: 0.75rem; font-weight: 800; border: 1px solid #B1A6A4;">
+                                        {{ s.category or 'Service' }}
+                                    </span>
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: #413F3D;">
+                                        ✦ Master Offering
+                                    </span>
+                                </div>
+
+                                <h4 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: #413F3D; margin: 0.35rem 0 0.5rem;">
+                                    {{ s.service_name }}
+                                </h4>
+
+                                {% if s.description %}
+                                    <p style="font-size: 0.88rem; color: #697184; line-height: 1.5; margin: 0 0 1.25rem;">
+                                        {{ s.description }}
+                                    </p>
+                                {% endif %}
+                            </div>
+
+                            {% if session.get('user_type') != 'professional' %}
+                            <a href="/book/{{ shop.User_id }}?service={{ s.service_name }}" class="btn btn-gold btn-block" style="font-weight: 800; padding: 0.85rem; font-size: 0.95rem; box-shadow: var(--shadow-sm);">
+                                📅 Book / Inquire Service &rarr;
+                            </a>
+                            {% elif session.get('user_id') == shop.User_id %}
+                            <a href="/my_services" class="btn btn-luxury-outline btn-block" style="font-weight: 700; padding: 0.75rem; font-size: 0.9rem; text-align: center;">
+                                ⚙️ Manage in Rate Card &rarr;
+                            </a>
+                            {% else %}
+                            <div style="font-size: 0.85rem; color: #697184; text-align: center; padding: 0.5rem; background: #ffffff; border-radius: var(--radius-sm); border: 1px solid #B1A6A4; font-weight: 600;">
+                                Available for Customer Appointments
+                            </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="background: #F2F1EF; border: 1.5px dashed #B1A6A4; border-radius: var(--radius); padding: 1.75rem; text-align: center;">
+                    <p style="color: #697184; margin: 0 0 1rem; font-size: 1rem;">
+                        Master {{ shop.Owner_name }} provides custom bespoke appointments based on your specific requirements.
+                    </p>
+                    {% if session.get('user_type') != 'professional' %}
+                    <a href="/book/{{ shop.User_id }}" class="btn btn-gold btn-lg" style="font-weight: 800;">
+                        📅 Book Custom Appointment &rarr;
+                    </a>
+                    {% elif session.get('user_id') == shop.User_id %}
+                    <a href="/my_services" class="btn btn-gold btn-lg" style="font-weight: 800;">
+                        ➕ Add Services & Rates &rarr;
+                    </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+
+        <!-- B. DOORSTEP TRAVEL CHARGES & MAIN APPOINTMENT CTA -->
+        <div style="background: #F2F1EF; border: 1.5px solid #B1A6A4; border-radius: var(--radius-md); padding: 2rem 2.25rem; margin-bottom: 2rem;">
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; align-items: center;">
+                
+                <!-- Travel Breakdown -->
+                <div>
+                    <div style="font-size: 0.85rem; font-weight: 800; color: #413F3D; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem;">
+                        🚗 Visiting & Travel Charges
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: 1.25rem; color: #413F3D; margin: 0 0 1rem;">
+                        Doorstep Visiting Fee
+                    </h4>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.95rem;">
+                        {% if shop.Service_charge and shop.Service_charge != '0' %}
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1.5px solid #413F3D; padding-bottom: 0.45rem;">
+                            <span style="color: #413F3D; font-weight: 800;">💰 Studio Base Service Charge:</span>
+                            <b style="color: #15803d; font-size: 1.1rem; font-weight: 900;">₹{{ shop.Service_charge }}</b>
+                        </div>
+                        {% endif %}
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #B1A6A4; padding-bottom: 0.4rem;">
+                            <span style="color: #697184;">Local City Visit ({{ shop.City }}):</span>
+                            <b style="color: #413F3D;">₹{{ shop.Local_travel_charge or 0 }}</b>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #B1A6A4; padding-bottom: 0.4rem;">
+                            <span style="color: #697184;">Other City (Same State):</span>
+                            <b style="color: #413F3D;">₹{{ shop.Other_city_charge or 0 }}</b>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #697184;">Outstation Visit:</span>
+                            <b style="color: #413F3D;">₹{{ shop.Other_state_charge or 0 }}</b>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Studio Distance & Coverage Map -->
+                    <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px dashed #B1A6A4;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.4rem;">
+                            <div style="font-size: 0.825rem; font-weight: 800; color: #413F3D; text-transform: uppercase; letter-spacing: 0.05em;">
+                                🗺️ Live Coverage Radius & Distance Map
+                            </div>
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; font-size: 0.72rem; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                15km / 80km Zones Active
+                            </span>
+                        </div>
+                        <div id="studioCoverageMap" style="height: 240px; width: 100%; border-radius: var(--radius-sm); border: 1.5px solid #B1A6A4; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); position: relative; z-index: 1;"></div>
+
+                        <!-- Quick Distance & Fee Estimator -->
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap;">
+                            <input
+                                type="text"
+                                id="checkCoverageInput"
+                                placeholder="Enter your area / city (e.g. Bhilai, Raipur, Durg)..."
+                                style="flex: 1; min-width: 180px; font-size: 0.85rem; padding: 0.55rem 0.75rem; border: 1px solid #B1A6A4; border-radius: var(--radius-sm); background: #ffffff;"
+                            >
+                            <button type="button" id="btnCheckCoverage" class="btn btn-sm btn-gold" style="font-weight: 800; font-size: 0.825rem; padding: 0.55rem 0.9rem;">
+                                🧭 Check Fee
+                            </button>
+                        </div>
+                        <div id="coverageResultBox" style="display: none; margin-top: 0.6rem; padding: 0.65rem 0.85rem; background: #ffffff; border: 1.5px solid #10b981; border-radius: var(--radius-sm); font-size: 0.85rem; color: #413F3D; line-height: 1.45;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 20% Advance Token Safety Notice & Instant Book Button -->
+                <div style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius); padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 0.8rem; font-weight: 800; color: #15803d; text-transform: uppercase; margin-bottom: 0.35rem;">
+                        🔒 100% Secure Platform Protection
+                    </div>
+                    <div style="font-size: 1.15rem; font-weight: 800; color: #413F3D; margin-bottom: 0.5rem;">
+                        20% Advance Token System
+                    </div>
+                    <p style="font-size: 0.85rem; color: #697184; line-height: 1.5; margin: 0 0 1.25rem;">
+                        Lock your chosen appointment time. If the artisan cancels, you receive a guaranteed 100% instant refund.
+                    </p>
+
+                    {% if session.get('user_type') != 'professional' %}
+                    <a href="/book/{{ shop.User_id }}" class="btn btn-gold btn-block btn-lg" style="font-weight: 900; font-size: 1.1rem; padding: 1rem 1.5rem; box-shadow: var(--shadow-md);">
+                        📅 Book Service Now &rarr;
+                    </a>
+                    {% elif session.get('user_id') == shop.User_id %}
+                    <a href="/shop_profile" class="btn btn-gold btn-block btn-lg" style="font-weight: 800; font-size: 1.05rem; padding: 0.9rem 1.5rem;">
+                        🏪 Update Travel Fee Charges &rarr;
+                    </a>
+                    {% else %}
+                    <div style="background: var(--palette-linen); border: 1px solid #B1A6A4; padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.88rem; color: #413F3D; font-weight: 600;">
+                        👤 Client appointment booking is reserved for verified Customers
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================================
+         STAGE 4: VERIFIED CLIENT REVIEWS & TESTIMONIALS
+         ========================================================================= -->
+    {% if reviews %}
+        <section style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 2.5rem 3rem; box-shadow: var(--shadow-lux); margin-bottom: 3.5rem;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <div style="display: inline-flex; align-items: center; gap: 0.5rem; color: #413F3D; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem;">
+                        <span>⭐</span> Verified Testimonials
+                    </div>
+                    <h3 style="font-family: var(--font-heading); font-size: 1.85rem; color: #413F3D; margin: 0;">
+                        Client Feedback & Ratings ({{ reviews|length }})
+                    </h3>
+                </div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #413F3D;">
+                    Overall ★ {{ avg_rating }} / 5.0
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.25rem;">
+                {% for r in reviews %}
+                    <div style="background: #F2F1EF; border: 1px solid #B1A6A4; border-radius: var(--radius); padding: 1.4rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                            <span style="color: #413F3D; font-weight: 800; font-size: 1.05rem;">
+                                {% for star in range(r.Rating) %}★{% endfor %}
+                            </span>
+                            <span style="font-size: 0.775rem; color: #697184; font-weight: 600;">
+                                {{ r.Booking_date if r.Booking_date else 'Verified Client' }}
+                            </span>
+                        </div>
+                        <p style="color: #413F3D; font-size: 0.925rem; line-height: 1.6; margin: 0 0 0.85rem; font-style: italic;">
+                            "{{ r.Review }}"
+                        </p>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.825rem;">
+                            <b style="color: #413F3D;">— {{ r.customer_name }}</b>
+                            {% if r.Service %}
+                                <span style="color: #413F3D; font-weight: 700;">{{ r.Service }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </section>
+    {% endif %}
+
+
+
+    <!-- =========================================================================
+         STAGE 5: STUDIO ADDRESS & CASHLESS PAYMENT VERIFICATION
+         ========================================================================= -->
+    <section style="background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); padding: 2rem 2.5rem; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 800; color: #413F3D; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.25rem;">
+                📍 Studio Address & Base Station
+            </div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: #413F3D;">
+                {{ shop.Address }}
+            </div>
+            <div style="font-size: 0.95rem; color: #697184; margin-top: 0.2rem;">
+                <b>{{ shop.City }}, {{ shop.State }}</b> &nbsp;|&nbsp; Service Area: <b>{{ shop.Service_area }}</b>
+            </div>
+        </div>
+
+        {% if shop.qr_code %}
+            <div style="background: #F2F1EF; border: 1.5px solid #B1A6A4; border-radius: var(--radius); padding: 0.85rem 1.35rem; display: flex; align-items: center; gap: 0.85rem;">
+                <span style="font-size: 1.8rem;">📱</span>
+                <div>
+                    <div style="font-weight: 800; color: #413F3D; font-size: 0.88rem; text-transform: uppercase;">
+                        UPI Scanner Configured
+                    </div>
+                    <div style="font-size: 0.8rem; color: #697184;">
+                        Accepted via PhonePe, Google Pay, Paytm, BHIM.
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+    </section>
+
+</div>
+
+
+<!-- =========================================================================
+     STICKY CONCIERGE BAR (Bottom of screen for instant booking anywhere)
+     ========================================================================= -->
+<div id="sticky-pro-concierge" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(242, 241, 239, 0.96); backdrop-filter: blur(16px); border-top: 1.5px solid #B1A6A4; box-shadow: 0 -8px 25px rgba(0,0,0,0.1); padding: 0.85rem 2rem; z-index: 999; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <span style="font-size: 1.25rem;">👑</span>
+        <div>
+            <div style="font-weight: 800; color: #413F3D; font-size: 0.95rem; line-height: 1.2;">
+                {{ shop.Owner_name }} <span style="color: #697184; font-weight: 400;">({{ shop.Shop_name }})</span>
+            </div>
+            <div style="font-size: 0.8rem; color: #413F3D; font-weight: 700;">
+                ★ {{ avg_rating }} Rating &nbsp;|&nbsp; 📍 {{ shop.City }}
+            </div>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 0.6rem; align-items: center;">
+        <a href="tel:{{ shop.Phone }}" class="btn btn-sm btn-luxury-outline" style="font-weight: 700; padding: 0.6rem 1rem;">
+            📞 Call
+        </a>
+        <a href="https://wa.me/91{{ shop.Phone }}" target="_blank" class="btn btn-sm btn-luxury-outline" style="border-color: #22c55e; color: #15803d !important; font-weight: 700; padding: 0.6rem 1rem;">
+            💬 WhatsApp
+        </a>
+        {% if session.get('user_type') != 'professional' %}
+        <a href="/book/{{ shop.User_id }}" class="btn btn-sm btn-gold" style="font-weight: 900; padding: 0.65rem 1.4rem; box-shadow: var(--shadow-sm);">
+            📅 Book Service &rarr;
+        </a>
+        {% elif session.get('user_id') == shop.User_id %}
+        <a href="/professional_dashboard" class="btn btn-sm btn-gold" style="font-weight: 800; padding: 0.65rem 1.4rem;">
+            ⚙️ Dashboard &rarr;
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+
+
+
+
+<!-- =========================================================================
+     FULLSCREEN HIGH-DEFINITION IMAGE LIGHTBOX MODAL
+     ========================================================================= -->
+<div id="imageLightboxModal" style="display: none; position: fixed; inset: 0; background: rgba(10, 10, 15, 0.92); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; padding: 1.5rem;" onclick="closeImageModal()">
+    <div style="max-width: 850px; width: 100%; background: #1c1813; border: 2px solid var(--border-gold); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-2xl); position: relative;" onclick="event.stopPropagation()">
+        
+        <button onclick="closeImageModal()" style="position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.7); border: 1.5px solid var(--border-gold); color: #fff; width: 38px; height: 38px; border-radius: 50%; font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">
+            ✕
+        </button>
+
+        <div style="height: 480px; background: #0a0a0f; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            <img id="lightboxImg" src="" alt="Work Photo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        </div>
+
+        <div style="padding: 1.75rem 2rem; background: #faf6ed;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: var(--gold-dark); text-transform: uppercase; letter-spacing: 0.08em;">
+                    ✦ Verified Craft Photo Uploaded by Owner
+                </div>
+                <div id="lightboxCharge" style="display: none; background: #413F3D; color: #F2F1EF; border: 1.5px solid #ffd700; padding: 0.35rem 0.85rem; border-radius: var(--radius-sm); font-weight: 900; font-size: 1.05rem;">
+                </div>
+            </div>
+            <h3 id="lightboxTitle" style="font-family: var(--font-heading); font-size: 1.5rem; color: var(--text-primary); margin: 0 0 0.5rem;"></h3>
+            <p id="lightboxDesc" style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin: 0 0 1.25rem; white-space: pre-line;"></p>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button onclick="closeImageModal()" class="btn btn-sm btn-luxury-outline">Close</button>
+                {% if session.get('user_type') != 'professional' %}
+                <a href="#book-service-section" onclick="closeImageModal()" class="btn btn-sm btn-gold" style="font-weight: 800;">📅 Book This Service &darr;</a>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+@keyframes zoomPulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.08); }
+}
+</style>
+
+<script>
+// --- Studio Coverage Map (Leaflet) ---
+const CITY_COORDS_PROFILE = {
+    'bhilai': [21.1938, 81.3509],
+    'durg': [21.1904, 81.2849],
+    'raipur': [21.2514, 81.6296],
+    'bilaspur': [22.0797, 82.1409],
+    'rajnandgaon': [21.0974, 81.0382],
+    'korba': [22.3595, 82.7501],
+    'raigarh': [21.8974, 83.3950],
+    'jagdalpur': [19.0743, 82.0082],
+    'ambikapur': [23.1197, 83.1979],
+    'nagpur': [21.1458, 79.0882],
+    'delhi': [28.6139, 77.2090],
+    'mumbai': [19.0760, 72.8777],
+    'kolkata': [22.5726, 88.3639],
+    'bengaluru': [12.9716, 77.5946],
+    'hyderabad': [17.3850, 78.4867],
+    'pune': [18.5204, 73.8567]
+};
+
+function getProfileCityCoords(name) {
+    const key = (name || '').trim().toLowerCase();
+    for (const [k, c] of Object.entries(CITY_COORDS_PROFILE)) {
+        if (key === k || key.includes(k) || k.includes(key)) return c;
+    }
+    return [21.1938, 81.3509];
+}
+
+function haversineProfile(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.round(R * c * 10) / 10;
+}
+
+let coverageMap = null;
+let profileCustomerMarker = null;
+let profileRouteLine = null;
+const pShopCity = "{{ shop.City }}".trim();
+const pShopState = "{{ shop.State }}".trim();
+let pShopCoords = getProfileCityCoords(pShopCity);
+
+function initCoverageMap() {
+    const container = document.getElementById('studioCoverageMap');
+    if (!container || typeof L === 'undefined') return;
+
+    coverageMap = L.map('studioCoverageMap', { scrollWheelZoom: false }).setView(pShopCoords, 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap'
+    }).addTo(coverageMap);
+
+    const studioIcon = L.divIcon({
+        className: 'custom-pin-base',
+        html: '<div style="background:#413F3D; color:#ffd700; border:2px solid #ffffff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; box-shadow:0 4px 10px rgba(0,0,0,0.3);">🏪</div>',
+        iconSize: [34, 34],
+        iconAnchor: [17, 17]
+    });
+
+    const sMarker = L.marker(pShopCoords, { icon: studioIcon }).addTo(coverageMap);
+    sMarker.bindPopup(`<b>{{ shop.Shop_name }}</b><br>Studio Base: ${pShopCity}, ${pShopState}`);
+
+    // Local Zone Circle: 15 km
+    L.circle(pShopCoords, {
+        radius: 15000,
+        color: '#10b981',
+        fillColor: '#10b981',
+        fillOpacity: 0.12,
+        weight: 1.5
+    }).addTo(coverageMap).bindPopup(`<b>Local Zone (≤15 km)</b><br>Travel Fee: ₹{{ shop.Local_travel_charge or 0 }}`);
+
+    // Regional Zone Circle: 80 km
+    L.circle(pShopCoords, {
+        radius: 80000,
+        color: '#697184',
+        fillColor: '#697184',
+        fillOpacity: 0.05,
+        weight: 1.5,
+        dashArray: '4, 4'
+    }).addTo(coverageMap).bindPopup(`<b>Regional Zone (15–80 km)</b><br>Travel Fee: ₹{{ shop.Other_city_charge or 0 }}`);
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pShopCity + ', ' + pShopState + ', India')}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                pShopCoords = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+                sMarker.setLatLng(pShopCoords);
+                coverageMap.setView(pShopCoords, 11);
+            }
+        })
+        .catch(() => {});
+}
+
+function checkCustomerCoverage(query) {
+    if (!query || !query.trim()) return;
+    const q = query.trim();
+    const resultBox = document.getElementById('coverageResultBox');
+
+    function displayResult(lat, lng, label) {
+        const distKm = haversineProfile(pShopCoords[0], pShopCoords[1], lat, lng);
+        let fee = {{ shop.Other_state_charge or 0 }};
+        let zone = "Outstation (>80 km)";
+
+        if (distKm <= 15) {
+            fee = {{ shop.Local_travel_charge or 0 }};
+            zone = "Local Zone (≤15 km)";
+        } else if (distKm <= 80) {
+            fee = {{ shop.Other_city_charge or 0 }};
+            zone = "Regional Zone (15–80 km)";
+        }
+
+        if (resultBox) {
+            resultBox.style.display = 'block';
+            resultBox.innerHTML = `<b>📍 ${label || q}</b>: <b>${distKm} KM</b> from studio.<br>` +
+                                  `Zone: <b style="color:#047857;">${zone}</b> &nbsp;|&nbsp; Estimated Visiting Fee: <b style="color:#15803d; font-size:1.05rem;">₹${fee}</b>`;
+        }
+
+        if (coverageMap) {
+            if (profileCustomerMarker) coverageMap.removeLayer(profileCustomerMarker);
+            if (profileRouteLine) coverageMap.removeLayer(profileRouteLine);
+
+            const cIcon = L.divIcon({
+                className: 'custom-pin-base',
+                html: '<div style="background:#15803d; color:#ffffff; border:2px solid #ffffff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; box-shadow:0 4px 10px rgba(0,0,0,0.3);">📍</div>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+
+            profileCustomerMarker = L.marker([lat, lng], { icon: cIcon }).addTo(coverageMap);
+            profileCustomerMarker.bindPopup(`<b>${label || q}</b><br>Distance: ${distKm} KM<br>Visiting Fee: ₹${fee}`).openPopup();
+
+            profileRouteLine = L.polyline([pShopCoords, [lat, lng]], {
+                color: '#413F3D',
+                weight: 3,
+                dashArray: '6, 6'
+            }).addTo(coverageMap);
+
+            coverageMap.fitBounds(L.latLngBounds([pShopCoords, [lat, lng]]), { padding: [40, 40] });
+        }
+    }
+
+    const direct = getProfileCityCoords(q);
+    if (direct && (direct[0] !== pShopCoords[0] || direct[1] !== pShopCoords[1])) {
+        displayResult(direct[0], direct[1], q);
+    }
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q + ', India')}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                displayResult(parseFloat(data[0].lat), parseFloat(data[0].lon), data[0].name || q);
+            }
+        })
+        .catch(() => {});
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    initCoverageMap();
+
+    const btnCheck = document.getElementById('btnCheckCoverage');
+    const inputCheck = document.getElementById('checkCoverageInput');
+    if (btnCheck && inputCheck) {
+        btnCheck.addEventListener('click', function() {
+            checkCustomerCoverage(inputCheck.value);
+        });
+        inputCheck.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                checkCustomerCoverage(inputCheck.value);
+            }
+        });
+    }
+});
+
+function openImageModal(imgUrl, title, desc, charge = '') {
+    document.getElementById('lightboxImg').src = imgUrl;
+    document.getElementById('lightboxTitle').innerText = title;
+    document.getElementById('lightboxDesc').innerText = desc;
+    const chargeEl = document.getElementById('lightboxCharge');
+    if (chargeEl) {
+        if (charge && charge.trim() !== '') {
+            chargeEl.innerText = '💰 Charge: ₹' + charge;
+            chargeEl.style.display = 'inline-block';
+        } else {
+            chargeEl.style.display = 'none';
+        }
+    }
+    document.getElementById('imageLightboxModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeImageModal() {
+    document.getElementById('imageLightboxModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeImageModal();
+    }
+});
+</script>
+
+{% endblock %}

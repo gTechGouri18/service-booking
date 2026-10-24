@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Give Review - Booking #{{ booking.Id }} - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container-sm" style="max-width: 600px; margin: 3rem auto; padding: 0 1rem;">
+
+    <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); box-shadow: 0 15px 35px rgba(65, 63, 61, 0.08); padding: 2.5rem 2rem;">
+
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="margin: 0 auto 1rem; width: 64px; height: 64px; font-size: 1.8rem; background: var(--palette-linen); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                ⭐
+            </div>
+            <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--palette-charcoal); font-family: var(--font-heading);">
+                Rate Your Experience
+            </h1>
+            <p style="color: var(--palette-slate); font-size: 0.95rem; margin-top: 0.25rem;">
+                Share your honest feedback to help other clients discover high-quality craftsmanship
+            </p>
+        </div>
+
+        <!-- Service Info -->
+        <div style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.75rem;">
+            <div class="service-meta-item" style="color: var(--palette-charcoal); font-size: 0.9rem; margin-bottom: 0.35rem;">
+                <span>🛠️ <b>Completed Service:</b> {{ booking.Service }}</span>
+            </div>
+            <div class="service-meta-item" style="color: var(--palette-charcoal); font-size: 0.9rem; margin-bottom: 0.35rem;">
+                <span>📍 <b>Location:</b> {{ booking.Location }}</span>
+            </div>
+            <div class="service-meta-item" style="color: var(--palette-charcoal); font-size: 0.9rem;">
+                <span>💰 <b>Amount:</b> ₹{{ booking.Charge }}</span>
+            </div>
+        </div>
+
+        <form method="POST">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label for="rating" style="font-weight: 700; color: var(--palette-charcoal);">Rating <span class="required" style="color: #dc2626;">*</span></label>
+                <select id="rating" name="rating" required style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);">
+                    <option value="">Select your rating (1 to 5 stars)</option>
+                    <option value="5">⭐⭐⭐⭐⭐ 5 Stars - Outstanding & Highly Recommended</option>
+                    <option value="4">⭐⭐⭐⭐ 4 Stars - Very Good Experience</option>
+                    <option value="3">⭐⭐⭐ 3 Stars - Average Service</option>
+                    <option value="2">⭐⭐ 2 Stars - Below Expectations</option>
+                    <option value="1">⭐ 1 Star - Poor Experience</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="review" style="font-weight: 700; color: var(--palette-charcoal);">Your Review / Feedback <span class="required" style="color: #dc2626;">*</span></label>
+                <textarea
+                    id="review"
+                    name="review"
+                    rows="4"
+                    placeholder="Tell us about the professional's punctuality, skill quality, behaviour, and overall service..."
+                    required
+                    style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen); font-family: inherit;"
+                ></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-gold btn-block btn-lg" style="margin-top: 1rem; width: 100%; padding: 0.95rem; font-size: 1.05rem; font-weight: 700;">
+                ⭐ Submit Review
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.75rem;">
+            <a href="/my_bookings" class="btn btn-luxury-outline">
+                ⬅ Back to My Bookings
+            </a>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

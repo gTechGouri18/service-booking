@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Set Charge - Booking #{{ booking.Id }} - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container-sm" style="max-width: 600px; margin: 3rem auto; padding: 0 1rem;">
+
+    <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); box-shadow: 0 15px 35px rgba(65, 63, 61, 0.08); padding: 2.5rem 2rem;">
+
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="margin: 0 auto 1rem; width: 64px; height: 64px; font-size: 1.8rem; background: var(--palette-linen); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                💰
+            </div>
+            <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--palette-charcoal); font-family: var(--font-heading);">
+                Set Booking Charge
+            </h1>
+            <p style="color: var(--palette-slate); font-size: 0.95rem; margin-top: 0.25rem;">
+                Set your final service and travel rate for Booking #{{ booking.Id }}
+            </p>
+        </div>
+
+        <!-- Booking Context -->
+        <div style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+                <div class="service-meta-item" style="color: var(--palette-charcoal); font-size: 0.9rem;">
+                    <span>🛠️ <b>Service:</b> {{ booking.Service }}</span>
+                </div>
+                <div class="service-meta-item" style="color: var(--palette-charcoal); font-size: 0.9rem;">
+                    <span>📍 <b>Location:</b> {{ booking.Location }}</span>
+                </div>
+                <div class="service-meta-item" style="color: var(--palette-charcoal); font-size: 0.9rem;">
+                    <span>🏠 <b>Type:</b> {{ 'Home Service' if booking.Service_Type == 'home' else 'Studio / Shop Visit' }}</span>
+                </div>
+                <div class="service-meta-item" style="color: var(--palette-slate); font-weight: 700; font-size: 0.9rem;">
+                    <span>💳 <b>Advance Paid:</b> ₹{{ booking.advance_amount }} ({{ booking.advance_percentage }}%)</span>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST">
+            <!-- 2-Column Inputs for Service Charge & Travel Charge -->
+            <div class="form-row">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="serviceChargeInput" style="font-weight: 700; color: var(--palette-charcoal); font-size: 0.95rem;">
+                        🛠️ Service Charge (₹) <span class="required" style="color: #dc2626;">*</span>
+                    </label>
+                    <input
+                        type="number"
+                        id="serviceChargeInput"
+                        name="service_charge"
+                        min="0"
+                        step="1"
+                        placeholder="e.g. 400"
+                        value="{{ (booking.Charge - booking.Travel_charge)|round|int if (booking.Charge > booking.Travel_charge) else booking.Charge|round|int }}"
+                        required
+                        autofocus
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                    <div class="form-help" style="color: var(--palette-slate); font-size: 0.825rem; margin-top: 0.35rem;">Primary service workmanship charge</div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="travelChargeInput" style="font-weight: 700; color: var(--palette-charcoal); font-size: 0.95rem;">
+                        🚗 Travel Charge (₹) <span class="required" style="color: #dc2626;">*</span>
+                    </label>
+                    <input
+                        type="number"
+                        id="travelChargeInput"
+                        name="travel_charge"
+                        min="0"
+                        step="1"
+                        placeholder="e.g. 50 or 0"
+                        value="{{ booking.Travel_charge|round|int if booking.Travel_charge is not none else 0 }}"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                    <div class="form-help" style="color: var(--palette-slate); font-size: 0.825rem; margin-top: 0.35rem;">Travel visiting fee (enter 0 if complimentary)</div>
+                </div>
+            </div>
+
+            <!-- Total & Remaining Preview Calculation Card -->
+            <div style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.25rem; margin: 1.5rem 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                    <div>
+                        <div style="font-weight: 700; color: var(--palette-charcoal); font-size: 1rem;">Total Customer Bill:</div>
+                        <div style="font-size: 0.85rem; color: var(--palette-slate);">
+                            (Service: ₹<span id="previewServ">0</span> + Travel: ₹<span id="previewTravel">0</span>)
+                        </div>
+                    </div>
+                    <div id="finalTotalDisplay" style="font-size: 1.5rem; font-weight: 800; color: var(--palette-charcoal);">
+                        ₹{{ booking.Charge }}
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.65rem; border-top: 1px dashed var(--palette-taupe);">
+                    <div>
+                        <div style="font-weight: 700; color: var(--palette-slate); font-size: 0.95rem;">Remaining Due on Completion:</div>
+                        <div style="font-size: 0.8rem; color: var(--palette-taupe);">
+                            (Total Bill - Advance Token ₹{{ booking.advance_amount }})
+                        </div>
+                    </div>
+                    <div id="remainingDueDisplay" style="font-size: 1.5rem; font-weight: 900; color: var(--palette-charcoal);">
+                        ₹{{ booking.remaining_amount }}
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-gold btn-block btn-lg" style="font-size: 1.05rem; padding: 0.95rem; width: 100%; font-weight: 700;">
+                💾 Save Service & Travel Charges
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="/booking_requests" class="btn btn-luxury-outline">
+                ⬅ Back to Booking Requests
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Realtime calculation JS -->
+<script>
+    const serviceChargeInput = document.getElementById('serviceChargeInput');
+    const travelChargeInput = document.getElementById('travelChargeInput');
+    const advancePaid = Number("{{ booking.advance_amount }}") || 0;
+    const finalTotalDisplay = document.getElementById('finalTotalDisplay');
+    const remainingDueDisplay = document.getElementById('remainingDueDisplay');
+    const previewServ = document.getElementById('previewServ');
+    const previewTravel = document.getElementById('previewTravel');
+
+    function updatePreview() {
+        const serv = Math.max(0, Number(serviceChargeInput.value) || 0);
+        const travel = Math.max(0, Number(travelChargeInput.value) || 0);
+        const total = serv + travel;
+        const rem = Math.max(0, total - advancePaid);
+
+        if (previewServ) previewServ.innerText = serv;
+        if (previewTravel) previewTravel.innerText = travel;
+        if (finalTotalDisplay) finalTotalDisplay.innerText = "₹" + total;
+        if (remainingDueDisplay) remainingDueDisplay.innerText = "₹" + rem;
+    }
+
+    if (serviceChargeInput) serviceChargeInput.addEventListener('input', updatePreview);
+    if (travelChargeInput) travelChargeInput.addEventListener('input', updatePreview);
+    updatePreview();
+</script>
+{% endblock %}

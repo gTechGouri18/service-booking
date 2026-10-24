@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}Shop Profile - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container-md" style="max-width: 900px; margin: 2rem auto; padding: 0 1rem;">
+
+    <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); box-shadow: 0 15px 35px rgba(65, 63, 61, 0.08); padding: 2.5rem 2rem;">
+
+        <!-- Header -->
+        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--palette-platinum); padding-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 class="page-title" style="font-family: var(--font-heading); color: var(--palette-charcoal); font-size: 2rem; margin-bottom: 0.5rem;">
+                        🏪 {% if shop %}Update Your Shop Profile{% else %}Create Your Shop Profile{% endif %}
+                    </h1>
+                    <p class="page-subtitle" style="color: var(--palette-slate); font-size: 0.95rem; margin: 0;">
+                        Set your business details, studio location, service coverage, and rates so clients can easily discover you
+                    </p>
+                </div>
+                {% if shop %}
+                    <span class="badge" style="background: var(--palette-platinum); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-weight: 700; font-size: 0.9rem; padding: 0.4rem 0.9rem;">
+                        ✅ Profile Active
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <!-- Shop & Owner Name -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="shop_name" style="font-weight: 700; color: var(--palette-charcoal);">Shop / Business Name <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="text"
+                        id="shop_name"
+                        name="shop_name"
+                        value="{{ shop.Shop_name if shop else '' }}"
+                        placeholder="e.g. Styles Hair & Beauty Studio"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="owner_name" style="font-weight: 700; color: var(--palette-charcoal);">Owner / Professional Name <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="text"
+                        id="owner_name"
+                        name="owner_name"
+                        value="{{ shop.Owner_name if shop else session.get('user_name', '') }}"
+                        placeholder="Enter owner full name"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                </div>
+            </div>
+
+            <!-- Phone & Address -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone" style="font-weight: 700; color: var(--palette-charcoal);">Business Contact Phone <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value="{{ shop.Phone if shop else session.get('user_phone', '') }}"
+                        placeholder="e.g. 9876543210"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="address" style="font-weight: 700; color: var(--palette-charcoal);">Full Street Address <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        value="{{ shop.Address if shop else '' }}"
+                        placeholder="Shop no, street, landmark, area"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                </div>
+            </div>
+
+            <!-- City, State & Service Area -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="city" style="font-weight: 700; color: var(--palette-charcoal);">Base City <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        value="{{ shop.City if shop else '' }}"
+                        placeholder="e.g. Bhilai"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="state" style="font-weight: 700; color: var(--palette-charcoal);">State <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="text"
+                        id="state"
+                        name="state"
+                        value="{{ shop.State if shop else '' }}"
+                        placeholder="e.g. Chhattisgarh"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="service_area" style="font-weight: 700; color: var(--palette-charcoal);">Service Area Coverage <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="text"
+                        id="service_area"
+                        name="service_area"
+                        value="{{ shop.Service_area if shop else '' }}"
+                        placeholder="e.g. Bhilai, Durg, Raipur, 25km radius"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                </div>
+            </div>
+
+            <!-- About Work Details -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="work_details" style="font-weight: 700; color: var(--palette-charcoal);">About Your Work & Experience <span class="required" style="color: #dc2626;">*</span></label>
+                <textarea
+                    id="work_details"
+                    name="work_details"
+                    rows="4"
+                    placeholder="Describe what services you specialize in, your experience, timings, and why customers should choose you..."
+                    required
+                    style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen); font-family: inherit;"
+                >{{ shop.Work_details if shop else '' }}</textarea>
+            </div>
+
+            <!-- Travel & Studio Service Charges -->
+            <div style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;">
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--palette-charcoal); margin-bottom: 0.5rem; font-family: var(--font-heading);">
+                    💰 Studio Service Charge & Travel Charges (₹)
+                </h3>
+                <p style="font-size: 0.9rem; color: var(--palette-slate); margin-bottom: 1.25rem;">
+                    Set your standard <b>Studio Service Charge</b> (starting rate for your services/hairstyles) and convenient travel charges:
+                </p>
+
+                <!-- Base Studio Service Charge -->
+                <div class="form-row" style="margin-bottom: 1.25rem;">
+                    <div class="form-group" style="margin-bottom: 0; width: 100%;">
+                        <label for="service_charge" style="font-weight: 800; color: var(--palette-charcoal); font-size: 1rem;">
+                            Studio Base Service Charge ₹ <span class="required" style="color: #dc2626;">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="service_charge"
+                            name="service_charge"
+                            value="{{ shop.Service_charge if (shop and shop.Service_charge is defined) else '500' }}"
+                            placeholder="e.g. 500, 1000 or 500 / 1000"
+                            style="border: 2px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.85rem 1rem; width: 100%; color: var(--palette-charcoal); background: #ffffff; font-weight: 800; font-size: 1.05rem;"
+                        >
+                        <div class="form-help" style="color: var(--palette-slate); font-size: 0.825rem; margin-top: 0.35rem;">
+                            Standard service charge or starting rate for your studio (e.g. 500, 1000 or 500 / 1000). Clients see this as your base service charge.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="local_travel_charge" style="font-weight: 700; color: var(--palette-charcoal);">Local City / Home Visiting Charge ₹</label>
+                        <input
+                            type="number"
+                            id="local_travel_charge"
+                            name="local_travel_charge"
+                            min="0"
+                            step="1"
+                            value="{{ shop.Local_travel_charge if (shop and shop.Local_travel_charge is defined) else '0' }}"
+                            placeholder="e.g. 50 or 0"
+                            style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: #ffffff;"
+                        >
+                        <div class="form-help" style="color: var(--palette-slate); font-size: 0.825rem; margin-top: 0.35rem;">Visiting charge for local city (enter 0 if free)</div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="other_city_charge" style="font-weight: 700; color: var(--palette-charcoal);">Other City Charge (Same State) ₹</label>
+                        <input
+                            type="number"
+                            id="other_city_charge"
+                            name="other_city_charge"
+                            min="0"
+                            step="1"
+                            value="{{ shop.Other_city_charge if shop else '0' }}"
+                            style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: #ffffff;"
+                        >
+                        <div class="form-help" style="color: var(--palette-slate); font-size: 0.825rem; margin-top: 0.35rem;">Fixed charge for visiting other cities within same state</div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="other_state_charge" style="font-weight: 700; color: var(--palette-charcoal);">Other State / Outstation Charge ₹</label>
+                        <input
+                            type="number"
+                            id="other_state_charge"
+                            name="other_state_charge"
+                            min="0"
+                            step="1"
+                            value="{{ shop.Other_state_charge if shop else '0' }}"
+                            style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: #ffffff;"
+                        >
+                        <div class="form-help" style="color: var(--palette-slate); font-size: 0.825rem; margin-top: 0.35rem;">Outstation visiting charge for other states</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Scanner & QR Code Setup (UPI QR Code) -->
+            <div style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.5rem; margin: 1.75rem 0;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--palette-charcoal); margin: 0; display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-heading);">
+                        <span>📱</span> Professional Payment Scanner / QR Code & UPI Details
+                    </h3>
+                    <span class="badge" style="background: var(--palette-platinum); color: var(--palette-charcoal); border: 1px solid var(--palette-taupe); font-weight: 700;">Customer Direct Payment</span>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--palette-slate); margin-bottom: 1.25rem; line-height: 1.5;">
+                    Upload your <b>PhonePe, Google Pay, Paytm, or BharatPe UPI Scanner QR Code</b>. Clients will scan this QR code directly to pay your 20% advance booking deposit and the remaining balance upon job completion!
+                </p>
+
+                <div class="form-row">
+                    <!-- UPI ID -->
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label for="upi_id" style="font-weight: 700; color: var(--palette-charcoal);">
+                            Your UPI ID (VPA):
+                        </label>
+                        <input
+                            type="text"
+                            id="upi_id"
+                            name="upi_id"
+                            value="{{ shop.upi_id if shop and shop.upi_id else '' }}"
+                            placeholder="e.g. 9876543210@ybl, yourname@oksbi, shop@paytm"
+                            style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: #ffffff;"
+                        >
+                        <div class="form-help" style="color: var(--palette-slate); font-size: 0.825rem; margin-top: 0.35rem;">Your direct UPI ID where payments will be received.</div>
+                    </div>
+
+                    <!-- Upload QR Code Scanner Image -->
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label for="qr_code" style="font-weight: 700; color: var(--palette-charcoal);">
+                            Upload Scanner QR Code Image:
+                        </label>
+                        <input
+                            type="file"
+                            id="qr_code"
+                            name="qr_code"
+                            accept="image/*"
+                            style="padding: 0.55rem; background: white; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); width: 100%; color: var(--palette-charcoal);"
+                        >
+                        <div class="form-help" style="color: var(--palette-slate); font-size: 0.825rem; margin-top: 0.35rem;">Select a clear photo or screenshot of your PhonePe / GPay / Paytm QR Code (JPG, PNG).</div>
+                    </div>
+                </div>
+
+                {% if shop and shop.qr_code %}
+                    <div style="background: #ffffff; border: 1.5px dashed var(--palette-taupe); border-radius: var(--radius-sm); padding: 1rem; margin-top: 1rem; display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;">
+                        <img src="{{ url_for('static', filename='uploads/' + shop.qr_code) }}" alt="Shop QR Code" style="width: 110px; height: 110px; object-fit: contain; border: 1px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 4px; background: white; box-shadow: 0 4px 10px rgba(65, 63, 61, 0.08);">
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: #059669; display: flex; align-items: center; gap: 0.35rem;">
+                                <span>✓</span> Your QR Code is Active!
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--palette-slate); margin-top: 0.25rem;">
+                                Clients will see this scanner QR code during booking and service completion.
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--palette-taupe); margin-top: 0.25rem;">
+                                (Selecting and saving a new QR image will replace the current one)
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div style="background: var(--palette-platinum); border: 1px dashed var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.825rem; color: var(--palette-charcoal);">
+                        ℹ️ If you do not upload a custom QR code, the system default gateway will be displayed. Upload your personal QR code for direct payments!
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Work Portfolio Image Upload -->
+            <div style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.5rem; margin: 1.75rem 0;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--palette-charcoal); margin: 0; display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-heading);">
+                        <span>🖼️</span> Upload New Work / Portfolio Photo
+                    </h3>
+                    <a href="/my_works" class="btn btn-sm btn-luxury-outline" style="font-size: 0.8rem;">
+                        Manage All Portfolio Photos &rarr;
+                    </a>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--palette-slate); margin-bottom: 1rem; line-height: 1.5;">
+                    Upload high-quality photos of your real craftsmanship, styling, installations, plumbing, or repairs. Clients see these showcase photos on your public profile to book you directly!
+                </p>
+
+                <div class="form-row" style="margin-bottom: 0.85rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="work_title" style="font-weight: 700; color: var(--palette-charcoal);">
+                            Work / Hairstyle Title:
+                        </label>
+                        <input
+                            type="text"
+                            id="work_title"
+                            name="work_title"
+                            placeholder="e.g. Bridal Hairstyle, Party Look, Engagement Style"
+                            style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: #ffffff;"
+                        >
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="work_charge" style="font-weight: 700; color: var(--palette-charcoal);">
+                            Service Charge for this Hairstyle / Work (₹):
+                        </label>
+                        <input
+                            type="text"
+                            id="work_charge"
+                            name="work_charge"
+                            placeholder="e.g. 500, 1000 or 500 / 1000"
+                            style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: #ffffff; font-weight: 700;"
+                        >
+                        <div class="form-help" style="color: var(--palette-slate); font-size: 0.8rem; margin-top: 0.25rem;">
+                            Displayed directly under this photo on your profile (e.g. 500, 1000 or 500 / 1000)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="work_image" style="font-weight: 700; color: var(--palette-charcoal);">
+                        Select Work Photo (JPG, PNG):
+                    </label>
+                    <input
+                        type="file"
+                        id="work_image"
+                        name="work_image"
+                        accept="image/*"
+                        style="padding: 0.55rem; background: white; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); width: 100%; color: var(--palette-charcoal);"
+                    >
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-gold btn-block btn-lg" style="margin-top: 1.5rem; width: 100%; padding: 0.95rem; font-size: 1.05rem; font-weight: 700;">
+                💾 {% if shop %}Update & Save Shop Profile{% else %}Save & Activate Shop Profile{% endif %}
+            </button>
+        </form>
+
+        <div style="margin-top: 1.75rem; text-align: center;">
+            <a href="/professional_dashboard" class="btn btn-luxury-outline">
+                ⬅ Back to Professional Dashboard
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

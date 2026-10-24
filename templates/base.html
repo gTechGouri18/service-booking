@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ServiceHub - Service Booking & Job Marketplace{% endblock %}</title>
+    <!-- Google Fonts: Playfair Display + Plus Jakarta Sans + Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+    <!-- Main Navigation Bar (ServiceHub - Luxury Edition) -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="brand">
+                <div class="brand-icon">
+                    <span class="brand-icon-inner" style="color: #ffd700 !important; font-weight: 900;">S</span>
+                </div>
+                <span>Service<span class="hub">Hub</span></span>
+            </a>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                ☰
+            </button>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/">Home</a></li>
+                <li><a href="/find_services">Services</a></li>
+                <li><a href="/jobs">Job Need <span class="nav-badge-job">NEW</span></a></li>
+                <li><a href="/conditions">Conditions</a></li>
+
+                {% if session.get('user_id') %}
+                    {% if session.get('user_type') == 'customer' %}
+                        <li><a href="/customer_dashboard">Dashboard</a></li>
+                        <li><a href="/my_bookings">My Bookings</a></li>
+                    {% elif session.get('user_type') == 'professional' %}
+                        <li><a href="/professional_dashboard">Dashboard</a></li>
+                        <li><a href="/booking_requests">Requests</a></li>
+                        <li><a href="/my_services">Services</a></li>
+                        <li><a href="/my_works">Portfolio</a></li>
+                        <li><a href="/jobs/post" style="color: var(--palette-charcoal); font-weight: 700;">➕ Post Job Offer</a></li>
+                        <li><a href="/my_jobs">My Offers</a></li>
+                    {% elif session.get('user_type') == 'admin' %}
+                        <li><a href="/admin" style="color: #ffd700; font-weight: 800;">👑 Command Center</a></li>
+                    {% endif %}
+                {% endif %}
+                {% if session.get('user_type') != 'admin' %}
+                <li><a href="/admin/login" style="color: var(--palette-slate); font-weight: 600;" title="Central Admin Command">👑 Admin</a></li>
+                {% endif %}
+
+                <!-- Mobile-Only User / Auth Row inside Slide-Down Menu -->
+                <li class="nav-mobile-actions">
+                    {% if session.get('user_id') or session.get('is_admin') %}
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
+                            <a href="{% if session.get('user_type') == 'admin' %}/admin{% else %}/profile{% endif %}" class="user-badge" style="width: 100%; justify-content: center;">
+                                <span>👤 {{ session.get('user_name', 'Admin') }}</span>
+                                <span class="role-tag" style="{% if session.get('user_type') == 'admin' %}background: #ffd700 !important; color: #000000 !important; font-weight: 800;{% endif %}">{{ session.get('user_type', 'admin') }}</span>
+                            </a>
+                            <a href="/logout" class="btn btn-sm btn-luxury-outline btn-block" style="text-align: center; padding: 0.65rem;">Logout</a>
+                        </div>
+                    {% else %}
+                        <div style="display: flex; gap: 0.6rem; width: 100%;">
+                            <a href="/login" class="btn btn-sm btn-luxury-outline" style="flex: 1; text-align: center; padding: 0.65rem;">Login</a>
+                            <a href="/signup" class="btn btn-sm btn-gold" style="flex: 1; text-align: center; padding: 0.65rem;">Sign Up</a>
+                        </div>
+                    {% endif %}
+                </li>
+            </ul>
+
+            <div class="nav-actions" id="navActions">
+                {% if session.get('user_id') or session.get('is_admin') %}
+                    <a href="{% if session.get('user_type') == 'admin' %}/admin{% else %}/profile{% endif %}" class="user-badge" title="View Profile">
+                        <span>👤 {{ session.get('user_name', 'Admin') }}</span>
+                        <span class="role-tag" style="{% if session.get('user_type') == 'admin' %}background: #ffd700 !important; color: #000000 !important; font-weight: 800;{% endif %}">{{ session.get('user_type', 'admin') }}</span>
+                    </a>
+                    <a href="/logout" class="btn btn-sm btn-luxury-outline" title="Log out">Logout</a>
+                {% else %}
+                    <a href="/login" class="btn btn-sm btn-luxury-outline">Login</a>
+                    <a href="/signup" class="btn btn-sm btn-gold">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info">
+                        <span>💡 {{ message }}</span>
+                        <button class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Page Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <div class="brand" style="margin-bottom: 1.25rem;">
+                    <div class="brand-icon" style="background: #252422 !important; border: 2px solid var(--palette-taupe) !important; color: #ffd700 !important; font-weight: 900;">S</div>
+                    <span style="color: #ffffff !important; font-weight: 800;">Service<span class="hub" style="color: #ffd700 !important;">Hub</span></span>
+                </div>
+                <p style="font-size: 0.925rem; line-height: 1.7; color: var(--palette-linen) !important; margin-bottom: 1.25rem;">
+                    Exceptional services, verified professionals. The destination for high-end beauty, salon, precision electrical, HVAC, and luxury home wellness.
+                </p>
+                <div style="display: flex; gap: 0.5rem;">
+                    <span class="badge" style="background: var(--palette-platinum); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-weight: 700;">
+                        ✨ Verified Excellence
+                    </span>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4 style="color: #ffd700 !important; font-weight: 700;">Explore Services</h4>
+                <ul class="footer-links">
+                    <li><a href="/find_services" style="color: #ffffff !important; font-weight: 600;">All Professional Services</a></li>
+                    <li><a href="/find_services?search=hair" style="color: var(--palette-linen) !important;">Salon & Hair Artistry</a></li>
+                    <li><a href="/find_services?search=spa" style="color: var(--palette-linen) !important;">Spa & Skin Wellness</a></li>
+                    <li><a href="/find_services?search=electric" style="color: var(--palette-linen) !important;">Electrical & Lighting</a></li>
+                    <li><a href="/find_services?search=ac" style="color: var(--palette-linen) !important;">HVAC & Climate Care</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 style="color: #ffd700 !important; font-weight: 700;">For Professionals</h4>
+                <ul class="footer-links">
+                    <li><a href="/signup" style="color: var(--palette-linen) !important;">Join as Verified Professional</a></li>
+                    <li><a href="/shop_profile" style="color: var(--palette-linen) !important;">Create Business Profile</a></li>
+                    <li><a href="/booking_requests" style="color: var(--palette-linen) !important;">Requests Concierge</a></li>
+                    <li><a href="/jobs" style="color: var(--palette-linen) !important;">Job Opportunities Portal</a></li>
+                    <li><a href="/conditions" style="color: var(--palette-linen) !important;">Platform Policies</a></li>
+                    <li><a href="/admin" style="color: #ffd700 !important; font-weight: 700;">👑 Admin Command Center</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 style="color: #ffd700 !important; font-weight: 700;">Concierge & Support</h4>
+                <p style="font-size: 0.9rem; color: #ffd700 !important; margin-bottom: 0.6rem; font-weight: 700;">📞 Direct Concierge: +91 9202745205</p>
+                <p style="font-size: 0.9rem; color: var(--palette-linen) !important; margin-bottom: 0.6rem;">📧 concierge@servicebooking.local</p>
+                <p style="font-size: 0.88rem; color: var(--palette-platinum) !important; margin-bottom: 1rem;">📍 Doorstep Coverage in All Major Cities</p>
+                <a href="/conditions" class="btn btn-sm btn-gold" style="width: 100%; font-weight: 700;">
+                    📜 View Terms & Conditions
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p style="color: var(--palette-platinum) !important;">&copy; 2026 ServiceHub Luxury Marketplace. All rights reserved. Exceptional Services. Trusted Professionals.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Nav Script -->
+    <script>
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        if (navToggle && navLinks) {
+            navToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navLinks.classList.toggle('show');
+            });
+            document.addEventListener('click', (e) => {
+                if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) {
+                    navLinks.classList.remove('show');
+                }
+            });
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

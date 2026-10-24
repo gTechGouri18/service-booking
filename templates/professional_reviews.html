@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Reviews - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container-md" style="max-width: 900px; margin: 2rem auto; padding: 0 1rem;">
+
+    <!-- Header -->
+    <div class="page-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--palette-platinum); padding-bottom: 1.5rem;">
+        <div>
+            <h1 class="page-title" style="font-family: var(--font-heading); color: var(--palette-charcoal); font-size: 2rem; margin-bottom: 0.5rem;">
+                ⭐ Customer Reviews & Ratings
+            </h1>
+            <p class="page-subtitle" style="color: var(--palette-slate); font-size: 0.95rem; margin: 0;">
+                See what customers are saying about your service quality and reliability
+            </p>
+        </div>
+        <a href="/professional_dashboard" class="btn btn-luxury-outline">
+            ⬅ Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Rating Summary Widget -->
+    <div class="card" style="margin-bottom: 2.5rem; background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); padding: 2rem; box-shadow: 0 10px 30px rgba(65, 63, 61, 0.06);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+                <div style="font-size: 3.5rem; font-weight: 900; color: var(--palette-charcoal); line-height: 1; font-family: var(--font-heading);">
+                    {{ avg_rating }}
+                </div>
+                <div>
+                    <div class="star-rating" style="font-size: 1.4rem; color: var(--palette-charcoal);">
+                        {% for i in range(1, 6) %}
+                            {% if i <= avg_rating %}
+                                ★
+                            {% else %}
+                                ☆
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div style="font-size: 0.95rem; color: var(--palette-slate); font-weight: 600; margin-top: 0.25rem;">
+                        Based on {{ total_reviews }} customer review{% if total_reviews != 1 %}s{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: right;">
+                <span class="badge" style="background: var(--palette-platinum); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-weight: 700; font-size: 0.9rem; padding: 0.45rem 1rem;">
+                    ✨ Top Rated Professional
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Items List -->
+    <div>
+        <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--palette-charcoal); font-family: var(--font-heading); margin-bottom: 1.25rem;">
+            All Customer Feedbacks
+        </h2>
+
+        {% if reviews %}
+            {% for r in reviews %}
+                <div class="review-item" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 4px 15px rgba(65, 63, 61, 0.04);">
+                    <div class="review-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; border-bottom: 1px solid var(--palette-platinum); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                        <div>
+                            <span style="font-weight: 800; color: var(--palette-charcoal); font-size: 1.05rem;">
+                                👤 {{ r.Customer_name }}
+                            </span>
+                            <span style="font-size: 0.85rem; color: var(--palette-slate); margin-left: 0.5rem;">
+                                for service <b>{{ r.Service }}</b>
+                            </span>
+                        </div>
+                        <div class="star-rating" style="color: var(--palette-charcoal);">
+                            {% for i in range(1, 6) %}
+                                {% if i <= r.Rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                            <span style="font-size: 0.85rem; color: var(--palette-slate); font-weight: 700; margin-left: 0.25rem;">
+                                ({{ r.Rating }}/5)
+                            </span>
+                        </div>
+                    </div>
+
+                    <p style="color: var(--palette-charcoal); font-size: 0.95rem; line-height: 1.6; margin: 0.75rem 0;">
+                        "{{ r.Review }}"
+                    </p>
+
+                    <div style="font-size: 0.8rem; color: var(--palette-taupe);">
+                        Submitted on {{ r.Created_at.strftime('%d %b %Y, %I:%M %p') if r.Created_at else '' }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); text-align: center; padding: 3.5rem 2rem; box-shadow: 0 10px 30px rgba(65, 63, 61, 0.06);">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⭐</div>
+                <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--palette-charcoal); margin-bottom: 0.5rem; font-family: var(--font-heading);">
+                    No Reviews Yet
+                </h3>
+                <p style="color: var(--palette-slate); max-width: 450px; margin: 0 auto 1.5rem; font-size: 0.95rem;">
+                    Once you complete customer bookings, clients will be able to leave ratings and verified reviews here.
+                </p>
+                <a href="/booking_requests" class="btn btn-gold">Check Pending Bookings</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

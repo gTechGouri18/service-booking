@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Booking & Cancellation Policies - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container-md">
+
+    <!-- Header (Pure English) -->
+    <div class="page-header" style="text-align: center; justify-content: center; margin-bottom: 2.5rem;">
+        <div>
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <span class="badge" style="background: rgba(212, 175, 55, 0.15); border: 1px solid var(--border-gold); color: var(--gold-dark); font-size: 0.825rem; font-weight: 800; padding: 0.35rem 0.9rem;">
+                    PLATFORM POLICIES
+                </span>
+                <span class="badge" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #047857; font-size: 0.825rem; font-weight: 800;">
+                    Official Terms
+                </span>
+            </div>
+            <h1 class="page-title" style="font-family: var(--font-heading); font-size: 2.3rem; margin: 0.5rem 0; color: var(--text-primary);">
+                📜 Booking, Payment & Cancellation Policies
+            </h1>
+            <p class="page-subtitle" style="font-size: 1.05rem; max-width: 650px; margin: 0.5rem auto 0; color: var(--text-secondary); line-height: 1.6;">
+                Transparent rules and mutual assurance standards protecting both customers and certified professionals.
+            </p>
+        </div>
+    </div>
+
+    <!-- 4 Main Condition Cards -->
+    <div class="condition-card" style="margin-bottom: 2.5rem; background: #ffffff; border: 1.5px solid var(--border-gold); border-radius: var(--radius-lg); padding: 2.5rem; box-shadow: var(--shadow-lux);">
+        <h2 style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem;">
+            📌 Core Platform Principles
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.75rem;">
+            To ensure complete trust and punctuality, our platform operates under four key rules:
+        </p>
+
+        <div class="condition-grid">
+            <!-- 1. Advance Token Payment -->
+            <div class="condition-item" style="border-top: 4px solid var(--palette-charcoal); background: var(--palette-linen); border: 1px solid var(--palette-taupe);">
+                <div class="condition-icon" style="background: rgba(105, 113, 132, 0.15); color: var(--palette-charcoal);">
+                    💳
+                </div>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.4rem;">
+                    1. 20% Advance Token
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+                    When scheduling an appointment, a <b>20% Advance Token</b> is paid securely online to reserve the professional's calendar and guarantee arrival.
+                </p>
+            </div>
+
+            <!-- 2. Immediate Completion Payment -->
+            <div class="condition-item" style="border-top: 4px solid var(--palette-slate); background: var(--palette-linen); border: 1px solid var(--palette-taupe);">
+                <div class="condition-icon" style="background: rgba(105, 113, 132, 0.15); color: var(--palette-slate);">
+                    ⚡
+                </div>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.4rem;">
+                    2. Immediate Balance Settlement
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+                    Upon satisfactory completion of the service, the remaining <b>80% Balance Amount</b> is settled immediately via UPI, QR scanner, or cash.
+                </p>
+            </div>
+
+            <!-- 3. Customer Cancellation -->
+            <div class="condition-item" style="border-top: 4px solid #ef4444; background: #fff5f5;">
+                <div class="condition-icon" style="background: rgba(239, 68, 68, 0.15); color: #dc2626;">
+                    ❌
+                </div>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #991b1b; margin-bottom: 0.4rem;">
+                    3. Client Cancellation: Non-Refundable
+                </h3>
+                <p style="font-size: 0.88rem; color: #991b1b; line-height: 1.6;">
+                    If a client cancels a confirmed appointment, the advance token is <b>Non-Refundable</b> to compensate for the artisan's reserved time and transit prep.
+                </p>
+            </div>
+
+            <!-- 4. Shop Owner Cancellation -->
+            <div class="condition-item" style="border-top: 4px solid #10b981; background: #f0fdf4;">
+                <div class="condition-icon" style="background: rgba(16, 185, 129, 0.15); color: #16a34a;">
+                    ✅
+                </div>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #166534; margin-bottom: 0.4rem;">
+                    4. Professional Cancellation: 100% Refund
+                </h3>
+                <p style="font-size: 0.88rem; color: #15803d; line-height: 1.6;">
+                    If an artisan or studio cancels an appointment for any reason, the customer receives an automatic <b>100% Full Refund</b> back to their original account.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparative Table -->
+    <div class="card" style="margin-bottom: 2.5rem; padding: 2rem; background: #ffffff; border: 1.5px solid var(--border-gold); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+        <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin-bottom: 1.25rem;">
+            📊 Quick Policy Comparison Matrix
+        </h3>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Initiated By</th>
+                        <th>Advance Token Handling</th>
+                        <th>Refund Eligibility</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b style="color: var(--text-primary);">Client Cancellation</b></td>
+                        <td>Customer</td>
+                        <td>Retained as compensation for reserved artisan schedule</td>
+                        <td><span class="badge" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 800;">❌ Non-Refundable</span></td>
+                    </tr>
+                    <tr>
+                        <td><b style="color: var(--text-primary);">Professional Cancellation</b></td>
+                        <td>Artisan / Studio</td>
+                        <td>Credited back immediately to customer's account</td>
+                        <td><span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800;">✅ 100% Guaranteed Refund</span></td>
+                    </tr>
+                    <tr>
+                        <td><b style="color: var(--text-primary);">Service Completed</b></td>
+                        <td>Both Parties</td>
+                        <td>Deducted from total bill; balance settled on-site</td>
+                        <td><span class="badge" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3); font-weight: 800;">💳 Pay Remaining 80%</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CTAs -->
+    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+        <a href="/find_services" class="btn btn-gold btn-lg" style="font-weight: 800;">
+            🔍 Browse Services to Book
+        </a>
+        <a href="/jobs" class="btn btn-luxury-outline btn-lg">
+            💼 Visit Job Need Portal
+        </a>
+        <a href="/" class="btn btn-luxury-outline btn-lg">
+            🏠 Return to Home
+        </a>
+    </div>
+
+</div>
+{% endblock %}

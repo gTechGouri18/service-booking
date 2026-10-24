@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Requests - ServiceHub Luxury Concierge{% endblock %}
+
+{% block content %}
+<div class="container-md" style="padding-top: 2.5rem; padding-bottom: 5rem;">
+
+    <!-- Header -->
+    <div class="page-header" style="align-items: flex-end; padding-bottom: 1.75rem; border-bottom: 1.5px solid #B1A6A4; margin-bottom: 2rem;">
+        <div>
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: 800; color: #413F3D; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.4rem;">
+                <span>✦</span> Order Management Concierge
+            </div>
+            <h1 class="page-title" style="margin: 0; font-family: var(--font-heading); font-size: 2.2rem; color: #413F3D;">
+                Client Booking Requests
+            </h1>
+            <p class="page-subtitle" style="margin-top: 0.35rem; color: #697184;">
+                Manage service appointments, verify advance tokens, adjust travel charges, and finalize completions.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="/professional_dashboard" class="btn btn-luxury-outline">⬅ Dashboard</a>
+            <a href="/my_orders" class="btn btn-gold">📦 Order History</a>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; border-bottom: 1px solid #B1A6A4; padding-bottom: 1rem;">
+        <a href="/booking_requests" class="btn btn-sm {% if not active_status %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            All Requests ({{ bookings|length }})
+        </a>
+        <a href="/booking_requests?status=pending" class="btn btn-sm {% if active_status == 'pending' %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            ⏳ Pending
+        </a>
+        <a href="/booking_requests?status=accepted" class="btn btn-sm {% if active_status == 'accepted' %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            ✅ Accepted
+        </a>
+        <a href="/booking_requests?status=completed" class="btn btn-sm {% if active_status == 'completed' %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            🎉 Completed
+        </a>
+        <a href="/booking_requests?status=cancelled" class="btn btn-sm {% if active_status == 'cancelled' %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            ❌ Cancelled
+        </a>
+    </div>
+
+    <!-- Bookings List -->
+    {% if bookings %}
+        {% for booking in bookings %}
+            <div class="card" style="margin-bottom: 2rem; background: #ffffff; border: 1.5px solid #B1A6A4; border-left: 6px solid {% if booking.Status == 'pending' %}#f59e0b{% elif booking.Status == 'accepted' %}#3b82f6{% elif booking.Status == 'completed' %}#10b981{% else %}#ef4444{% endif %}; border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+
+                <div class="card-header" style="border-bottom: 1px dashed #B1A6A4; padding-bottom: 1rem; margin-bottom: 1.25rem;">
+                    <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
+                        <h2 style="font-size: 1.35rem; font-weight: 700; color: #413F3D; font-family: var(--font-heading); margin: 0;">
+                            Booking #{{ booking.Id }}
+                        </h2>
+                        {% if booking.Status == "pending" %}
+                            <span class="badge" style="background: rgba(245, 158, 11, 0.12); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3); font-weight: 800;">⏳ Pending Review</span>
+                        {% elif booking.Status == "accepted" %}
+                            <span class="badge" style="background: rgba(59, 130, 246, 0.12); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.3); font-weight: 800;">✅ Accepted / Scheduled</span>
+                        {% elif booking.Status == "completed" %}
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800;">🎉 Completed</span>
+                        {% elif booking.Status == "cancelled" %}
+                            <span class="badge" style="background: rgba(239, 68, 68, 0.12); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 800;">❌ Cancelled</span>
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 0.88rem; color: #697184; font-weight: 600;">
+                        📅 {{ booking.Booking_date }} &bull; ⏰ {{ booking.Booking_time }}
+                    </div>
+                </div>
+
+                <div class="card-body" style="padding: 0;">
+                    <div class="grid-2" style="margin-bottom: 1.25rem; gap: 1.5rem;">
+                        <div>
+                            <div class="service-meta-item" style="color: #413F3D; margin-bottom: 0.5rem;">
+                                <span>🛠️ <b style="color: #413F3D;">Service:</b> {{ booking.Service }}</span>
+                            </div>
+                            <div class="service-meta-item" style="color: #413F3D; margin-bottom: 0.5rem;">
+                                <span>
+                                    📍 <b>Location Type:</b>
+                                    {% if booking.Service_Type == "home" %}
+                                        🏠 Home Service
+                                    {% elif booking.Service_Type == "parlour" %}
+                                        💇 Studio / Parlour Visit
+                                    {% else %}
+                                        {{ booking.Service_Type }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="service-meta-item" style="color: #697184;">
+                                <span>🗺️ <b>Client Address:</b> {{ booking.Location }}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            {% if booking.customer_name %}
+                                <div class="service-meta-item" style="color: #413F3D; margin-bottom: 0.5rem;">
+                                    <span>👤 <b>Client Name:</b> {{ booking.customer_name }}</span>
+                                </div>
+                            {% endif %}
+                            {% if booking.customer_phone %}
+                                <div class="service-meta-item" style="color: #413F3D;">
+                                    <span>📞 <b>Direct Contact:</b> <a href="tel:{{ booking.customer_phone }}" style="font-weight: 700; color: #413F3D; text-decoration: underline;">{{ booking.customer_phone }}</a></span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Payment & Advance Breakdown Box -->
+                    <div style="background: #F2F1EF; border: 1.5px solid #B1A6A4; border-radius: var(--radius); padding: 1.25rem; margin-top: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1.25rem; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.75rem; color: #697184; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Total Bill Amount</div>
+                                <div style="font-size: 1.45rem; font-weight: 800; color: #413F3D; font-family: var(--font-heading);">
+                                    ₹{{ booking.Charge }}
+                                </div>
+                                <div style="font-size: 0.775rem; color: #697184; margin-top: 0.2rem;">
+                                    Service: <b>₹{{ (booking.Charge - booking.Travel_charge)|round|int if (booking.Charge > booking.Travel_charge) else booking.Charge|round|int }}</b> &bull; Travel: <b>₹{{ booking.Travel_charge|round|int }}</b>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="font-size: 0.75rem; color: #413F3D; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Advance Token Received</div>
+                                <div style="font-size: 1.45rem; font-weight: 800; color: #413F3D; font-family: var(--font-heading);">
+                                    ₹{{ booking.advance_amount }}
+                                </div>
+                                <div style="font-size: 0.75rem; color: #697184;">({{ booking.advance_percentage }}% Advance Token)</div>
+                            </div>
+
+                            <div style="border-left: 1px solid #B1A6A4; padding-left: 1.25rem;">
+                                <div style="font-size: 0.75rem; color: #b45309; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Balance Due on Completion</div>
+                                <div style="font-size: 1.45rem; font-weight: 800; color: #b45309; font-family: var(--font-heading);">
+                                    {% if booking.remaining_amount > 0 and booking.Status != 'cancelled' %}
+                                        ₹{{ booking.remaining_amount }}
+                                    {% elif booking.Status == 'cancelled' %}
+                                        ₹0
+                                    {% else %}
+                                        <span style="color: #047857;">₹0 (Settled)</span>
+                                    {% endif %}
+                                </div>
+                                <div style="font-size: 0.75rem; color: #697184;">Due upon job finish</div>
+                            </div>
+
+                            <div style="border-left: 1px solid #B1A6A4; padding-left: 1.25rem;">
+                                <div style="font-size: 0.75rem; color: #697184; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Payment Status</div>
+                                <div style="margin-top: 0.35rem;">
+                                    {% if booking.payment_status == 'fully_paid' %}
+                                        <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800;">Fully Paid ✅</span>
+                                    {% elif booking.payment_status == 'advance_paid' and booking.Status != 'cancelled' %}
+                                        <span class="badge" style="background: #D8CFD0; color: #413F3D; border: 1px solid #B1A6A4; font-weight: 800;">Advance Token Paid</span>
+                                    {% elif booking.cancelled_by == 'customer' %}
+                                        <span class="badge" style="background: rgba(239, 68, 68, 0.12); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 800;">Non-Refundable (Cust Cancel)</span>
+                                    {% elif booking.cancelled_by == 'professional' %}
+                                        <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800;">100% Refunded (Shop Cancel)</span>
+                                    {% else %}
+                                        <span class="badge" style="background: #ffffff; color: #413F3D; border: 1px solid #B1A6A4;">{{ booking.payment_status }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card-footer" style="padding: 1.25rem 0 0; margin-top: 1.5rem; border-top: 1px solid #B1A6A4; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; background: transparent;">
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        {% if booking.Status == "pending" %}
+                            <a href="/accept_booking/{{ booking.Id }}" class="btn btn-sm btn-gold">
+                                ✅ Accept Booking
+                            </a>
+
+                            <a href="/set_charge/{{ booking.Id }}" class="btn btn-sm btn-luxury-outline">
+                                💰 Set Service & Travel Rate
+                            </a>
+
+                            <a href="/cancel_booking/{{ booking.Id }}" class="btn btn-sm" style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;" onclick="return confirm('⚠️ Notice: If you (Shop Owner) cancel this booking, the customer will receive a 100% full refund of their advance token (₹{{ booking.advance_amount }}).\n\nConfirm cancellation?');">
+                                ❌ Cancel Booking
+                            </a>
+
+                        {% elif booking.Status == "accepted" %}
+                            <a href="/set_charge/{{ booking.Id }}" class="btn btn-sm btn-luxury-outline">
+                                💰 Adjust Rates
+                            </a>
+
+                            <a href="/complete_booking/{{ booking.Id }}" class="btn btn-sm btn-gold" onclick="return confirm('Mark work as completed? The customer will immediately be prompted to settle the remaining balance of ₹{{ booking.remaining_amount }}.');">
+                                ✅ Mark Work Completed
+                            </a>
+
+                            <a href="/cancel_booking/{{ booking.Id }}" class="btn btn-sm" style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;" onclick="return confirm('⚠️ Notice: Cancelling as shop owner will refund the customer\'s advance token (₹{{ booking.advance_amount }}).\n\nConfirm cancellation?');">
+                                ❌ Cancel
+                            </a>
+
+                        {% elif booking.Status == "completed" %}
+                            <a href="/booking_completed/{{ booking.Id }}" class="btn btn-sm btn-luxury-outline">
+                                📄 View Receipt
+                            </a>
+
+                            {% if booking.remaining_amount > 0 and booking.payment_status != 'fully_paid' %}
+                                <a href="/mark_paid/{{ booking.Id }}" class="btn btn-sm btn-gold" onclick="return confirm('Confirm that remaining cash balance of ₹{{ booking.remaining_amount }} was received from customer?');">
+                                    💵 Mark ₹{{ booking.remaining_amount }} Paid (Cash)
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    {% if booking.customer_phone %}
+                        <a href="tel:{{ booking.customer_phone }}" class="btn btn-sm btn-luxury-outline" style="display: flex; align-items: center; gap: 0.4rem;">
+                            📞 Call Client ({{ booking.customer_phone }})
+                        </a>
+                    {% endif %}
+                </div>
+
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card" style="text-align: center; padding: 4rem 2rem; background: #ffffff; border: 1.5px solid #B1A6A4; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+            <div style="font-size: 3.5rem; margin-bottom: 1rem; color: #413F3D;">📭</div>
+            <h3 style="font-size: 1.5rem; font-weight: 700; color: #413F3D; font-family: var(--font-heading); margin-bottom: 0.5rem;">
+                No Booking Requests Found
+            </h3>
+            <p style="color: #697184; max-width: 480px; margin: 0 auto 1.75rem; font-size: 0.95rem; line-height: 1.6;">
+                {% if active_status %}
+                    No bookings currently match the "{{ active_status }}" filter status.
+                {% else %}
+                    You have no incoming customer booking requests yet. Ensure your studio profile and services are up to date.
+                {% endif %}
+            </p>
+            {% if active_status %}
+                <a href="/booking_requests" class="btn btn-luxury-outline">View All Requests</a>
+            {% else %}
+                <a href="/shop_profile" class="btn btn-gold">Inspect Studio Profile</a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 2.5rem; text-align: center;">
+        <a href="/professional_dashboard" class="btn btn-luxury-outline">
+            ⬅ Return to Professional Dashboard
+        </a>
+    </div>
+
+</div>
+{% endblock %}

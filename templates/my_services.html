@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}My Services - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container-md" style="max-width: 1000px; margin: 2rem auto; padding: 0 1rem;">
+
+    <!-- Header -->
+    <div class="page-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--palette-platinum); padding-bottom: 1.5rem;">
+        <div>
+            <h1 class="page-title" style="font-family: var(--font-heading); color: var(--palette-charcoal); font-size: 2rem; margin-bottom: 0.5rem;">
+                💼 My Services & Rates
+            </h1>
+            <p class="page-subtitle" style="color: var(--palette-slate); font-size: 0.95rem; margin: 0;">
+                Add and manage individual services you offer to customers with standard pricing
+            </p>
+        </div>
+        <a href="/professional_dashboard" class="btn btn-luxury-outline">
+            ⬅ Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Add Service Card -->
+    <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(65, 63, 61, 0.06); padding: 2rem; margin-bottom: 2.5rem;">
+        <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--palette-charcoal); font-family: var(--font-heading); margin-bottom: 1.25rem;">
+            ➕ Add New Service
+        </h2>
+
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="service_name" style="font-weight: 700; color: var(--palette-charcoal);">Service Name <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="text"
+                        id="service_name"
+                        name="service_name"
+                        placeholder="e.g. Hair Cut & Wash, Fan Repair, Facial"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="category" style="font-weight: 700; color: var(--palette-charcoal);">Category <span class="required" style="color: #dc2626;">*</span></label>
+                    <select id="category" name="category" required style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);">
+                        <option value="Hairstyle">💇 Hairstyle</option>
+                        <option value="Salon & Beauty">✨ Salon & Beauty</option>
+                        <option value="Electrical">⚡ Electrical & Wiring</option>
+                        <option value="Plumbing">🔧 Plumbing & Pipes</option>
+                        <option value="Carpentry">🪚 Carpentry & Furniture</option>
+                        <option value="Appliance Repair">❄️ AC & Appliance Repair</option>
+                        <option value="Painting">🎨 Painting & Wall Decor</option>
+                        <option value="Cleaning">🧹 Home & Deep Cleaning</option>
+                        <option value="Other">🛠️ Other Services</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="price" style="font-weight: 700; color: var(--palette-charcoal);">Standard Price (₹) <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="number"
+                        id="price"
+                        name="price"
+                        min="0"
+                        step="1"
+                        placeholder="e.g. 250"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="description" style="font-weight: 700; color: var(--palette-charcoal);">Service Description / Details</label>
+                <input
+                    type="text"
+                    id="description"
+                    name="description"
+                    placeholder="e.g. Includes hair washing, styling, and organic hair serum"
+                    style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-gold btn-lg" style="font-weight: 700; padding: 0.85rem 1.75rem;">
+                💾 Save Service to My Shop
+            </button>
+        </form>
+    </div>
+
+    <!-- Services Table List -->
+    <div>
+        <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--palette-charcoal); font-family: var(--font-heading); margin-bottom: 1.25rem;">
+            Your Active Services ({{ services|length }})
+        </h2>
+
+        {% if services %}
+            <div class="table-responsive" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 10px 30px rgba(65, 63, 61, 0.06);">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="background: var(--palette-platinum); border-bottom: 1.5px solid var(--palette-taupe);">
+                        <tr>
+                            <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Service Name</th>
+                            <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Category</th>
+                            <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Description</th>
+                            <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Price (₹)</th>
+                            <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in services %}
+                            <tr style="border-bottom: 1px solid var(--palette-taupe);">
+                                <td style="padding: 1rem;"><b style="color: var(--palette-charcoal);">{{ s.service_name }}</b></td>
+                                <td style="padding: 1rem;">
+                                    <span class="badge" style="background: var(--palette-linen); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-weight: 600;">
+                                        {{ s.category }}
+                                    </span>
+                                </td>
+                                <td style="padding: 1rem; color: var(--palette-slate); font-size: 0.88rem;">
+                                    {{ s.description or 'No extra description' }}
+                                </td>
+                                <td style="padding: 1rem;">
+                                    <b style="color: var(--palette-charcoal); font-size: 1.1rem;">₹{{ s.price }}</b>
+                                </td>
+                                <td style="padding: 1rem;">
+                                    <a href="/delete_service/{{ s.id }}" class="btn btn-sm btn-luxury-outline" style="border-color: #dc2626; color: #dc2626;" onclick="return confirm('Delete this service?');">
+                                        🗑️ Delete
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); text-align: center; padding: 3rem 2rem; box-shadow: 0 10px 30px rgba(65, 63, 61, 0.06);">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">💼</div>
+                <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--palette-charcoal); margin-bottom: 0.5rem; font-family: var(--font-heading);">
+                    No Specific Services Listed Yet
+                </h3>
+                <p style="color: var(--palette-slate); max-width: 450px; margin: 0 auto 1.5rem; font-size: 0.95rem;">
+                    Add the specific services and rates you provide using the form above so clients can select them when booking.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

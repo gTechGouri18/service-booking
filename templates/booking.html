@@ -1,0 +1,1151 @@
+{% extends "base.html" %}
+
+{% block title %}Book Service - {{ shop.Shop_name }} - ServiceHub{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet OpenStreetMap CDN for Travel Distance Mapping -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+.map-badge {
+    background: #ffffff;
+    border: 1px solid var(--palette-taupe);
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.leaflet-container {
+    font-family: inherit;
+}
+.custom-pin-base {
+    transition: transform 0.2s ease;
+}
+.custom-pin-base:hover {
+    transform: scale(1.15);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-sm">
+
+    <!-- Booking Card -->
+    <div class="card" style="box-shadow: var(--shadow-lg); padding: 2.25rem 2rem;">
+
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div class="dash-icon dash-icon-blue" style="margin: 0 auto 1rem; width: 60px; height: 60px; font-size: 1.8rem;">
+                📅
+            </div>
+            <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--dark);">
+                Book Service Appointment
+            </h1>
+            <p style="color: var(--gray-500); font-size: 0.95rem; margin-top: 0.25rem;">
+                Fill details, review advance token payment, and confirm appointment
+            </p>
+        </div>
+
+        <!-- Shop Information Box -->
+        <div style="background: var(--palette-platinum); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--palette-charcoal); font-family: var(--font-heading); margin-bottom: 0.35rem;">
+                        <span style="color: var(--palette-slate);">✦</span> {{ shop.Shop_name }}
+                    </h3>
+                    <div style="font-size: 0.9rem; color: var(--palette-charcoal);">
+                        Master Artisan: <b style="color: var(--palette-charcoal);">{{ shop.Owner_name }}</b> &nbsp;|&nbsp; 📞 <span style="color: var(--palette-slate); font-weight: 700;">{{ shop.Phone }}</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--palette-slate); margin-top: 0.25rem;">
+                        📍 Studio Base: <b style="color: var(--palette-charcoal);">{{ shop.City }}, {{ shop.State }}</b> &nbsp;|&nbsp; Coverage Area: {{ shop.Service_area }}
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                    <span class="badge" style="background: rgba(105, 113, 132, 0.15); color: var(--palette-charcoal); border: 1.5px solid var(--palette-taupe); padding: 0.4rem 0.85rem; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Verified Professional
+                    </span>
+                    <a href="/professional/{{ shop.User_id }}" class="btn btn-sm btn-luxury-outline" style="font-size: 0.775rem; padding: 0.35rem 0.75rem; font-weight: 700;">
+                        👤 View Portfolio & Bio &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" id="bookingForm">
+
+            <!-- Service Selection -->
+            <div class="form-group">
+                <label for="service">Service Required <span class="required">*</span></label>
+                {% if services %}
+                    <div style="margin-bottom: 0.75rem;">
+                        <select id="serviceSelect" onchange="onServiceSelectChange(this)" required>
+                            <option value="">-- Choose A Verified Service Offering --</option>
+                            {% for s in services %}
+                                <option value="{{ s.service_name }}" data-price="{{ s.price }}" {% if request.args.get('service') == s.service_name or (not request.args.get('service') and loop.first) %}selected{% endif %}>
+                                    {{ s.service_name }} — ₹{{ s.price }}
+                                </option>
+                            {% endfor %}
+                            <option value="custom" data-price="{{ services[0].price if services else 300 }}">-- Other Specific Service --</option>
+                        </select>
+                    </div>
+                {% endif %}
+                <input
+                    type="text"
+                    id="service"
+                    name="service"
+                    placeholder="e.g. Haircut, Bridal Makeup, AC Service, Wiring"
+                    value="{% if request.args.get('service') %}{{ request.args.get('service') }}{% elif services %}{{ services[0].service_name }}{% else %}{% endif %}"
+                    required
+                >
+            </div>
+
+            <!-- Automatic Official Rate Display (NO Manual Input) -->
+            <div style="background: var(--palette-platinum); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.35rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--palette-charcoal); text-transform: uppercase; letter-spacing: 0.05em;">
+                        Official Service Rate:
+                    </div>
+                    <div style="font-size: 0.775rem; color: var(--palette-slate); margin-top: 0.15rem;">
+                        Configured verified rate by {{ shop.Shop_name }}
+                    </div>
+                </div>
+                <div style="font-size: 1.6rem; font-weight: 900; color: var(--palette-charcoal); font-family: var(--font-heading);">
+                    ₹<span id="serviceFeeDisplay">{{ services[0].price if services else 300 }}</span>
+                </div>
+            </div>
+            <!-- Hidden input for backend price processing -->
+            <input type="hidden" id="estimated_price" name="estimated_price" value="{{ services[0].price if services else 300 }}">
+
+            <!-- Service Requirements / Instructions -->
+            <div class="form-group">
+                <label for="requirements">Service Requirements / Instructions</label>
+                <textarea
+                    id="requirements"
+                    name="requirements"
+                    placeholder="Specify haircut preference, hair length, AC issue details, floor/flat access, or specific requirements..."
+                    style="min-height: 85px;"
+                ></textarea>
+            </div>
+
+            <!-- Service Type Selection -->
+            <div class="form-group">
+                <label for="service_type">Service Location Type <span class="required">*</span></label>
+                <select id="service_type" name="service_type" required>
+                    <option value="">Select where you want the service</option>
+                    <option value="home">🏠 Home Service (Professional visits your home)</option>
+                    <option value="parlour">💇 Shop / Parlour Visit (You visit the shop)</option>
+                </select>
+            </div>
+
+            <!-- Date & Time Row -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="booking_date">Appointment Date <span class="required">*</span></label>
+                    <input
+                        type="date"
+                        id="booking_date"
+                        name="booking_date"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="booking_time">Preferred Time <span class="required">*</span></label>
+                    <input
+                        type="time"
+                        id="booking_time"
+                        name="booking_time"
+                        required
+                    >
+                </div>
+            </div>
+
+            <!-- Interactive Doorstep Location & Smart Distance Mapping (Leaflet + OpenStreetMap) -->
+            <div id="doorstepMapCard" style="background: var(--palette-platinum); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.75rem; box-shadow: var(--shadow-sm);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <div>
+                        <div style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 800; color: var(--palette-charcoal); text-transform: uppercase; letter-spacing: 0.08em;">
+                            <span>🗺️</span> Smart Distance Mapping Knowledge
+                        </div>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--palette-charcoal); margin: 0.2rem 0 0.3rem;">
+                            Doorstep Location & Accurate Travel Fee Map
+                        </h4>
+                        <p style="font-size: 0.85rem; color: var(--palette-slate); margin: 0; line-height: 1.45;">
+                            Drop your doorstep pin or search your area. Distance from <b>{{ shop.Shop_name }}</b> base (<b>{{ shop.City }}, {{ shop.State }}</b>) is automatically measured in KM to assign fair travel fee.
+                        </p>
+                    </div>
+                    <span class="badge" id="mapStatusPill" style="background: rgba(16, 185, 129, 0.15); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800; font-size: 0.75rem; padding: 0.4rem 0.8rem;">
+                        📍 Live Distance Calculation Active
+                    </span>
+                </div>
+
+                <!-- Search & GPS Toolbar -->
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+                    <input
+                        type="text"
+                        id="mapSearchInput"
+                        placeholder="Search area, landmark or colony (e.g. Nehru Nagar, Sector 6, Supela, Durg)..."
+                        style="flex: 1; min-width: 220px; font-size: 0.88rem; padding: 0.65rem 0.85rem; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); background: #ffffff;"
+                    >
+                    <button type="button" id="btnMapSearch" class="btn btn-sm btn-luxury-outline" style="font-weight: 700; padding: 0.6rem 1rem;">
+                        🔍 Locate Area
+                    </button>
+                    <button type="button" id="btnMapGPS" class="btn btn-sm btn-gold" style="font-weight: 800; padding: 0.6rem 1rem;">
+                        📍 Use My GPS
+                    </button>
+                </div>
+
+                <!-- Leaflet Interactive Map -->
+                <div id="doorstepMap" style="height: 330px; width: 100%; border-radius: var(--radius); border: 1.5px solid var(--palette-taupe); box-shadow: inset 0 2px 5px rgba(0,0,0,0.06); position: relative; z-index: 1;"></div>
+
+                <!-- Map Distance Indicators -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.6rem; margin-top: 0.85rem;">
+                    <div class="map-badge">
+                        <span style="font-size: 1.2rem;">🏪</span>
+                        <div>
+                            <div style="font-size: 0.68rem; color: var(--palette-slate); text-transform: uppercase; font-weight: 700;">Studio Base</div>
+                            <div style="font-weight: 800; color: var(--palette-charcoal); font-size: 0.825rem;">{{ shop.City }}, {{ shop.State }}</div>
+                        </div>
+                    </div>
+                    <div class="map-badge">
+                        <span style="font-size: 1.2rem;">📍</span>
+                        <div>
+                            <div style="font-size: 0.68rem; color: var(--palette-slate); text-transform: uppercase; font-weight: 700;">Your Doorstep</div>
+                            <div id="badgeCustomerDest" style="font-weight: 800; color: var(--palette-charcoal); font-size: 0.825rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px;">{{ shop.City }} (Tap map to change)</div>
+                        </div>
+                    </div>
+                    <div class="map-badge">
+                        <span style="font-size: 1.2rem;">📏</span>
+                        <div>
+                            <div style="font-size: 0.68rem; color: var(--palette-slate); text-transform: uppercase; font-weight: 700;">Measured Distance</div>
+                            <div id="badgeDistanceKm" style="font-weight: 900; color: var(--palette-charcoal); font-size: 0.9rem;">0.0 KM</div>
+                        </div>
+                    </div>
+                    <div class="map-badge" style="background: linear-gradient(135deg, rgba(216, 207, 208, 0.4), #ffffff);">
+                        <span style="font-size: 1.2rem;">🧭</span>
+                        <div>
+                            <div style="font-size: 0.68rem; color: var(--palette-slate); text-transform: uppercase; font-weight: 700;">Applied Zone & Fee</div>
+                            <div id="badgeZoneFee" style="font-weight: 900; color: #15803d; font-size: 0.9rem;">Local (₹{{ shop.Local_travel_charge or 0 }})</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden inputs for backend processing -->
+                <input type="hidden" id="mapped_distance_km" name="mapped_distance_km" value="0">
+                <input type="hidden" id="doorstep_address" name="doorstep_address" value="">
+            </div>
+
+            <!-- City and State -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="city">Your City <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        placeholder="e.g. {{ shop.City }}"
+                        required
+                        autocomplete="address-level2"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="state">Your State <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        id="state"
+                        name="state"
+                        placeholder="e.g. {{ shop.State }}"
+                        required
+                        autocomplete="address-level1"
+                    >
+                </div>
+            </div>
+
+            <!-- Payment Breakdown Card (Total, Advance 20%, Remaining Due) -->
+            <div style="background: var(--palette-platinum); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); padding: 1.75rem; margin: 1.75rem 0; box-shadow: var(--shadow-sm);">
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--palette-charcoal); margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; font-family: var(--font-heading);">
+                    <span style="display: flex; align-items: center; gap: 0.5rem;"><span style="color: var(--palette-slate);">💳</span> Transparent Breakdown</span>
+                    <span class="badge" style="background: rgba(105, 113, 132, 0.15); color: var(--palette-charcoal); border: 1.5px solid var(--palette-taupe); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">20% Advance Token</span>
+                </h3>
+
+                <div style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 0.6rem; color: var(--palette-charcoal);">
+                    <span>Official Service Rate:</span>
+                    <span style="font-weight: 700; color: var(--palette-charcoal);">₹<span id="serviceRateDisplay">300</span></span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 0.6rem; color: var(--palette-charcoal);">
+                    <span>Travel Distance Fee:</span>
+                    <span style="font-weight: 700; color: var(--palette-charcoal);">₹<span id="travelChargeDisplay">0</span></span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; font-size: 1.05rem; font-weight: 700; color: var(--palette-charcoal); padding-top: 0.75rem; border-top: 1px dashed var(--palette-taupe); margin-bottom: 1.25rem;">
+                    <span>Total Estimated Bill:</span>
+                    <span style="color: var(--palette-charcoal); font-size: 1.25rem; font-weight: 900;">₹<span id="totalBillDisplay">300</span></span>
+                </div>
+
+                <div style="background: linear-gradient(135deg, rgba(216, 207, 208, 0.6), rgba(242, 241, 239, 0.6)); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.15rem 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 0.8rem; font-weight: 800; color: var(--palette-charcoal); text-transform: uppercase; letter-spacing: 0.08em;">
+                            Payable Advance Token (20% Now):
+                        </div>
+                        <div style="font-size: 0.775rem; color: var(--palette-slate); margin-top: 0.2rem;">
+                            Directly secures your priority booking slot
+                        </div>
+                    </div>
+                    <div style="font-size: 1.85rem; font-weight: 900; color: var(--palette-charcoal); font-family: var(--font-heading);">
+                        ₹<span id="advanceAmountDisplay">60</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--palette-charcoal); margin-top: 1rem; padding: 0.75rem 1rem; background: #ffffff; border-radius: var(--radius-sm); border: 1px solid var(--palette-taupe);">
+                    <span style="color: var(--palette-charcoal);">⏳ <b>Remaining Balance Due on Completion:</b></span>
+                    <span><b style="color: var(--palette-charcoal);">₹<span id="remainingDueDisplay">240</span></b></span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--palette-slate); margin-top: 0.6rem; font-style: italic;">
+                    ℹ️ Estimated based on base rates. Verified professional will finalize bill upon completion.
+                </div>
+            </div>
+
+            <!-- ONLINE PAYMENT METHOD SELECTION (PhonePe, Google Pay, Paytm, Net Banking, Other Apps) -->
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label style="font-size: 1.05rem; font-weight: 800; color: var(--dark); margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+                    <span>💳 Select Online Payment Method (20% Advance Token) <span class="required">*</span></span>
+                    <span class="badge badge-accepted" style="font-size: 0.75rem;">🔒 100% Secure Gateway</span>
+                </label>
+
+                <!-- Payment Apps Selection Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+                    <!-- 1. PhonePe -->
+                    <label class="pay-option" id="opt-phonepe" onclick="selectPaymentMethod('phonepe', 'PhonePe UPI')" style="border: 2px solid #5f259f; border-radius: var(--radius); padding: 0.85rem; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; background: #faf5ff; transition: var(--transition);">
+                        <input type="radio" name="payment_method" value="PhonePe UPI" checked style="width: auto; margin: 0;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: #5f259f; display: flex; align-items: center; gap: 0.35rem;">
+                                <span>🟣</span> PhonePe
+                            </div>
+                            <div style="font-size: 0.7rem; color: var(--gray-500);">UPI / QR / Number</div>
+                        </div>
+                    </label>
+
+                    <!-- 2. Google Pay -->
+                    <label class="pay-option" id="opt-gpay" onclick="selectPaymentMethod('gpay', 'Google Pay (GPay)')" style="border: 1.5px solid var(--gray-300); border-radius: var(--radius); padding: 0.85rem; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; background: white; transition: var(--transition);">
+                        <input type="radio" name="payment_method" value="Google Pay (GPay)" style="width: auto; margin: 0;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: #1a73e8; display: flex; align-items: center; gap: 0.35rem;">
+                                <span>🔵</span> Google Pay
+                            </div>
+                            <div style="font-size: 0.7rem; color: var(--gray-500);">GPay UPI / Tap</div>
+                        </div>
+                    </label>
+
+                    <!-- 3. Paytm -->
+                    <label class="pay-option" id="opt-paytm" onclick="selectPaymentMethod('paytm', 'Paytm UPI / Wallet')" style="border: 1.5px solid var(--gray-300); border-radius: var(--radius); padding: 0.85rem; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; background: white; transition: var(--transition);">
+                        <input type="radio" name="payment_method" value="Paytm UPI / Wallet" style="width: auto; margin: 0;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: #00baf2; display: flex; align-items: center; gap: 0.35rem;">
+                                <span>🔷</span> Paytm
+                            </div>
+                            <div style="font-size: 0.7rem; color: var(--gray-500);">UPI & Wallet</div>
+                        </div>
+                    </label>
+
+                    <!-- 4. Net Banking -->
+                    <label class="pay-option" id="opt-netbanking" onclick="selectPaymentMethod('netbanking', 'Net Banking')" style="border: 1.5px solid var(--gray-300); border-radius: var(--radius); padding: 0.85rem; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; background: white; transition: var(--transition);">
+                        <input type="radio" name="payment_method" value="Net Banking" style="width: auto; margin: 0;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
+                                <span>🏦</span> Net Banking
+                            </div>
+                            <div style="font-size: 0.7rem; color: var(--gray-500);">All Major Banks</div>
+                        </div>
+                    </label>
+
+                    <!-- 5. Other UPI Apps -->
+                    <label class="pay-option" id="opt-otherupi" onclick="selectPaymentMethod('otherupi', 'Other UPI App')" style="border: 1.5px solid var(--gray-300); border-radius: var(--radius); padding: 0.85rem; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; background: white; transition: var(--transition);">
+                        <input type="radio" name="payment_method" value="Other UPI App (BHIM / CRED / Amazon Pay)" style="width: auto; margin: 0;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: #7c3aed; display: flex; align-items: center; gap: 0.35rem;">
+                                <span>⚡</span> Other Apps
+                            </div>
+                            <div style="font-size: 0.7rem; color: var(--gray-500);">BHIM, CRED, Any UPI</div>
+                        </div>
+                    </label>
+
+                    <!-- 6. Card -->
+                    <label class="pay-option" id="opt-card" onclick="selectPaymentMethod('card', 'Debit / Credit Card')" style="border: 1.5px solid var(--gray-300); border-radius: var(--radius); padding: 0.85rem; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; background: white; transition: var(--transition);">
+                        <input type="radio" name="payment_method" value="Debit / Credit Card" style="width: auto; margin: 0;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: #374151; display: flex; align-items: center; gap: 0.35rem;">
+                                <span>💳</span> Card
+                            </div>
+                            <div style="font-size: 0.7rem; color: var(--gray-500);">Visa / RuPay / MC</div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Dynamic Payment Method Details Box -->
+                <div id="payment-details-box" style="background: #f8fafc; border: 1.5px solid var(--gray-200); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem;">
+                    
+                    <!-- PhonePe Detail Panel -->
+                    <div id="panel-phonepe">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <span style="font-weight: 800; color: #5f259f; font-size: 0.95rem;">📱 PhonePe UPI Payment</span>
+                            <span class="badge" style="background: #faf5ff; color: #5f259f; border: 1px solid #d8b4fe;">Fastest ⚡</span>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label for="phonepe_id" style="font-size: 0.85rem;">Enter PhonePe Number / UPI ID:</label>
+                            <input type="text" id="phonepe_id" placeholder="e.g. 9876543210@ybl or mobile number" style="font-size: 0.9rem; padding: 0.65rem 0.85rem;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.825rem; color: var(--gray-600); background: white; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px dashed var(--gray-300);">
+                            <span>📲 PhonePe notification aayegi ya QR scan karke pay kar sakte hain.</span>
+                        </div>
+                    </div>
+
+                    <!-- Google Pay Detail Panel -->
+                    <div id="panel-gpay" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <span style="font-weight: 800; color: #1a73e8; font-size: 0.95rem;">🔵 Google Pay (GPay) Payment</span>
+                            <span class="badge" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;">Zero Fees</span>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label for="gpay_id" style="font-size: 0.85rem;">Enter Google Pay UPI ID:</label>
+                            <input type="text" id="gpay_id" placeholder="e.g. yourname@okhdfcbank or yourname@oksbi" style="font-size: 0.9rem; padding: 0.65rem 0.85rem;">
+                        </div>
+                        <div style="font-size: 0.825rem; color: var(--gray-600); background: white; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px dashed var(--gray-300);">
+                            <span>Google Pay App me payment request bheji jayegi.</span>
+                        </div>
+                    </div>
+
+                    <!-- Paytm Detail Panel -->
+                    <div id="panel-paytm" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <span style="font-weight: 800; color: #00baf2; font-size: 0.95rem;">🔷 Paytm UPI / Wallet Payment</span>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label for="paytm_id" style="font-size: 0.85rem;">Enter Paytm Mobile Number / UPI ID:</label>
+                            <input type="text" id="paytm_id" placeholder="e.g. 9876543210@paytm" style="font-size: 0.9rem; padding: 0.65rem 0.85rem;">
+                        </div>
+                    </div>
+
+                    <!-- Net Banking Detail Panel -->
+                    <div id="panel-netbanking" style="display: none;">
+                        <div style="font-weight: 800; color: var(--dark); font-size: 0.95rem; margin-bottom: 0.75rem;">
+                            🏦 Select Your Bank for Net Banking:
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <label style="border: 1px solid var(--gray-300); border-radius: var(--radius-sm); padding: 0.5rem; font-size: 0.8rem; text-align: center; cursor: pointer; background: white;">
+                                <input type="radio" name="bank_select" value="SBI" checked style="width: auto; margin-right: 0.25rem;">
+                                <b>SBI</b>
+                            </label>
+                            <label style="border: 1px solid var(--gray-300); border-radius: var(--radius-sm); padding: 0.5rem; font-size: 0.8rem; text-align: center; cursor: pointer; background: white;">
+                                <input type="radio" name="bank_select" value="HDFC Bank" style="width: auto; margin-right: 0.25rem;">
+                                <b>HDFC Bank</b>
+                            </label>
+                            <label style="border: 1px solid var(--gray-300); border-radius: var(--radius-sm); padding: 0.5rem; font-size: 0.8rem; text-align: center; cursor: pointer; background: white;">
+                                <input type="radio" name="bank_select" value="ICICI Bank" style="width: auto; margin-right: 0.25rem;">
+                                <b>ICICI Bank</b>
+                            </label>
+                            <label style="border: 1px solid var(--gray-300); border-radius: var(--radius-sm); padding: 0.5rem; font-size: 0.8rem; text-align: center; cursor: pointer; background: white;">
+                                <input type="radio" name="bank_select" value="Axis Bank" style="width: auto; margin-right: 0.25rem;">
+                                <b>Axis Bank</b>
+                            </label>
+                            <label style="border: 1px solid var(--gray-300); border-radius: var(--radius-sm); padding: 0.5rem; font-size: 0.8rem; text-align: center; cursor: pointer; background: white;">
+                                <input type="radio" name="bank_select" value="PNB" style="width: auto; margin-right: 0.25rem;">
+                                <b>PNB</b>
+                            </label>
+                        </div>
+                        <select style="font-size: 0.85rem; padding: 0.6rem;">
+                            <option value="">-- Or Choose Other Bank --</option>
+                            <option value="Bank of Baroda">Bank of Baroda</option>
+                            <option value="Canara Bank">Canara Bank</option>
+                            <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+                            <option value="Union Bank of India">Union Bank of India</option>
+                            <option value="IndusInd Bank">IndusInd Bank</option>
+                            <option value="IDBI Bank">IDBI Bank</option>
+                        </select>
+                    </div>
+
+                    <!-- Other UPI Apps Detail Panel -->
+                    <div id="panel-otherupi" style="display: none;">
+                        <div style="font-weight: 800; color: #7c3aed; font-size: 0.95rem; margin-bottom: 0.75rem;">
+                            ⚡ Any Other UPI App (BHIM, CRED, Amazon Pay)
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.5rem;">
+                            <label for="other_upi_id" style="font-size: 0.85rem;">Enter UPI Virtual Payment Address (VPA):</label>
+                            <input type="text" id="other_upi_id" placeholder="e.g. mobile@upi, name@apl, cred@axis" style="font-size: 0.9rem; padding: 0.65rem 0.85rem;">
+                        </div>
+                    </div>
+
+                    <!-- Card Detail Panel -->
+                    <div id="panel-card" style="display: none;">
+                        <div style="font-weight: 800; color: var(--dark); font-size: 0.95rem; margin-bottom: 0.75rem;">
+                            💳 Debit / Credit Card Payment
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.5rem;">
+                            <label style="font-size: 0.85rem;">Card Number:</label>
+                            <input type="text" placeholder="1234 5678 9012 3456" maxlength="19" style="font-size: 0.9rem; padding: 0.6rem 0.85rem;">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.85rem;">Expiry Date:</label>
+                                <input type="text" placeholder="MM/YY" maxlength="5" style="font-size: 0.9rem; padding: 0.6rem 0.85rem;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.85rem;">CVV:</label>
+                                <input type="password" placeholder="•••" maxlength="3" style="font-size: 0.9rem; padding: 0.6rem 0.85rem;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QR Code Quick Scan Box for UPI -->
+                    <div id="upi-qr-box" style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1.5px dashed var(--gray-300);">
+                        {% if shop.qr_code %}
+                            <div style="background: white; border: 2px solid #7c3aed; border-radius: var(--radius); padding: 1.25rem; text-align: center; box-shadow: var(--shadow-sm);">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                                    <span style="font-size: 1.2rem;">📱</span>
+                                    <span style="font-size: 1.05rem; font-weight: 800; color: #581c87;">
+                                        {{ shop.Shop_name }} Official Scanner QR
+                                    </span>
+                                </div>
+                                <p style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.85rem;">
+                                    Scan this QR code using <b>PhonePe, Google Pay, or Paytm</b> to pay the 20% advance token:
+                                </p>
+                                <div style="display: inline-block; background: #faf5ff; border: 2.5px solid #d8b4fe; border-radius: var(--radius-md); padding: 0.75rem; box-shadow: var(--shadow-md);">
+                                    <img src="{{ url_for('static', filename='uploads/' + shop.qr_code) }}" alt="Shop UPI Scanner QR" style="max-width: 200px; max-height: 200px; width: 100%; height: auto; border-radius: var(--radius-sm); display: block; margin: 0 auto; background: white;">
+                                </div>
+                                <div style="margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
+                                    <span style="font-size: 0.95rem; font-weight: 800; color: var(--primary);">
+                                        Advance Amount: ₹<span id="qrAmountDisplay">60</span>
+                                    </span>
+                                    {% if shop.upi_id %}
+                                        <span class="badge" style="background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; font-size: 0.8rem; font-family: monospace;">
+                                            UPI ID: {{ shop.upi_id }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div style="background: white; border: 1.5px solid var(--gray-300); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="width: 58px; height: 58px; background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #1d4ed8;">
+                                        📱
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.9rem; font-weight: 800; color: var(--dark);">
+                                            Instant UPI QR Available
+                                        </div>
+                                        <div style="font-size: 0.8rem; color: var(--gray-500);">
+                                            Scan & pay <b>₹<span id="qrAmountDisplay">60</span></b> via PhonePe, GPay, Paytm
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-accepted" style="font-size: 0.8rem;">
+                                    UPI ID: {{ shop.upi_id if shop.upi_id else 'servicehub@icici' }}
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Cancellation & Refund Policy Box -->
+            <div style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: var(--radius); padding: 1.25rem; margin-bottom: 2rem;">
+                <h4 style="color: #be123c; font-size: 0.95rem; font-weight: 800; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <span>⚠️</span> Cancellation & Refund Policy:
+                </h4>
+                <ul style="color: #9f1239; font-size: 0.85rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+                    <li>
+                        <b>Customer Cancellation:</b> If you cancel the booking, the advance token deposit is <b>NON-REFUNDABLE</b>.
+                    </li>
+                    <li>
+                        <b>Professional / Owner Cancellation:</b> If the service provider or shop owner cancels your booking, your 100% advance deposit will be <b>FULLY REFUNDED</b>.
+                    </li>
+                    <li>
+                        <b>Completion Settlement:</b> The remaining balance amount must be settled directly upon satisfactory completion of service.
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Hidden field for advance percentage -->
+            <input type="hidden" name="advance_percentage" value="20">
+
+            <!-- Submit Button with Dynamic Method Display -->
+            <button type="submit" id="paySubmitBtn" class="btn btn-primary btn-block btn-lg" style="font-size: 1.1rem; padding: 1.1rem; box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35); letter-spacing: 0.03em;">
+                💳 Confirm & Pay Advance ₹<span id="btnAdvanceDisplay">60</span> via <span id="btnMethodDisplay">PhonePe UPI</span>
+            </button>
+        </form>
+
+        <!-- Simulated Payment Processing Modal -->
+        <div id="paymentModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
+            <div class="card" style="max-width: 420px; width: 90%; text-align: center; padding: 2.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); animation: slideDown 0.3s ease-out;">
+                <div id="modalLoadingState">
+                    <div style="width: 60px; height: 60px; border: 4px solid #e0e7ff; border-top: 4px solid var(--primary); border-radius: 50%; margin: 0 auto 1.5rem; animation: spin 1s linear infinite;"></div>
+                    <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--dark); margin-bottom: 0.5rem;">
+                        Connecting to <span id="modalAppDisplay">PhonePe</span>...
+                    </h3>
+                    <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 1rem;">
+                        Processing advance token payment of <b>₹<span id="modalAmountDisplay">60</span></b>
+                    </p>
+                    <div style="font-size: 0.8rem; color: var(--gray-500); background: var(--gray-100); padding: 0.5rem; border-radius: var(--radius-sm);">
+                        🔒 256-bit Encrypted Banking Gateway
+                    </div>
+                </div>
+
+                <div id="modalSuccessState" style="display: none;">
+                    <div style="width: 64px; height: 64px; background: #dcfce7; color: #16a34a; border-radius: 50%; font-size: 2.2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                        ✓
+                    </div>
+                    <h3 style="font-size: 1.4rem; font-weight: 800; color: #166534; margin-bottom: 0.5rem;">
+                        Advance Payment Verified!
+                    </h3>
+                    <p style="color: var(--gray-600); font-size: 0.9rem;">
+                        Booking confirmed. Redirecting to your dashboard...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="/find_services" class="btn btn-outline">
+                ⬅ Back to Services List
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<!-- Realtime Pricing & Distance Mapping Script -->
+<script>
+    // --- Configuration & Element References ---
+    const serviceInput = document.getElementById('service');
+    const estimatedPriceInput = document.getElementById('estimated_price');
+    const cityInput = document.getElementById('city');
+    const stateInput = document.getElementById('state');
+    const serviceTypeSelect = document.getElementById('service_type');
+
+    const serviceRateDisplay = document.getElementById('serviceRateDisplay');
+    const travelChargeDisplay = document.getElementById('travelChargeDisplay');
+    const totalBillDisplay = document.getElementById('totalBillDisplay');
+    const advanceAmountDisplay = document.getElementById('advanceAmountDisplay');
+    const remainingDueDisplay = document.getElementById('remainingDueDisplay');
+    const btnAdvanceDisplay = document.getElementById('btnAdvanceDisplay');
+
+    const shopCityName = "{{ shop.City }}".trim();
+    const shopStateName = "{{ shop.State }}".trim();
+    const shopCity = shopCityName.toLowerCase();
+    const shopState = shopStateName.toLowerCase();
+    const localTravelCharge = Number("{{ shop.Local_travel_charge if shop.Local_travel_charge else 0 }}") || 0;
+    const otherCityCharge = Number("{{ shop.Other_city_charge }}") || 0;
+    const otherStateCharge = Number("{{ shop.Other_state_charge }}") || 0;
+
+    // --- City Coordinates Dictionary (Instant Zero-Lag Geocoding) ---
+    const CITY_COORDS = {
+        'bhilai': [21.1938, 81.3509],
+        'durg': [21.1904, 81.2849],
+        'raipur': [21.2514, 81.6296],
+        'bilaspur': [22.0797, 82.1409],
+        'rajnandgaon': [21.0974, 81.0382],
+        'korba': [22.3595, 82.7501],
+        'raigarh': [21.8974, 83.3950],
+        'jagdalpur': [19.0743, 82.0082],
+        'ambikapur': [23.1197, 83.1979],
+        'nagpur': [21.1458, 79.0882],
+        'jabalpur': [23.1815, 79.9864],
+        'bhopal': [23.2599, 77.4126],
+        'indore': [22.7196, 75.8577],
+        'delhi': [28.6139, 77.2090],
+        'new delhi': [28.6139, 77.2090],
+        'mumbai': [19.0760, 72.8777],
+        'pune': [18.5204, 73.8567],
+        'bengaluru': [12.9716, 77.5946],
+        'bangalore': [12.9716, 77.5946],
+        'hyderabad': [17.3850, 78.4867],
+        'kolkata': [22.5726, 88.3639],
+        'chennai': [13.0827, 80.2707],
+        'jaipur': [26.9124, 75.7873],
+        'lucknow': [26.8467, 80.9462],
+        'patna': [25.5941, 85.1376],
+        'chandigarh': [30.7333, 76.7794],
+        'ahmedabad': [23.0225, 72.5714],
+        'surat': [21.1702, 72.8311],
+        'varanasi': [25.3176, 82.9739]
+    };
+
+    function getCoordsForCity(cityName) {
+        const key = (cityName || '').trim().toLowerCase();
+        for (const [k, coords] of Object.entries(CITY_COORDS)) {
+            if (key === k || key.includes(k) || k.includes(key)) {
+                return coords;
+            }
+        }
+        return [21.1938, 81.3509]; // Default to Bhilai
+    }
+
+    // Haversine Distance in KM
+    function haversineDistanceKm(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return Math.round(R * c * 10) / 10;
+    }
+
+    // --- Leaflet Map State ---
+    let doorstepMap = null;
+    let studioMarker = null;
+    let customerMarker = null;
+    let routePolyline = null;
+    let studioCoords = getCoordsForCity(shopCity);
+    let customerCoords = [studioCoords[0] + 0.02, studioCoords[1] + 0.02];
+    let currentMappedDistanceKm = 0;
+
+    function initDoorstepMap() {
+        const mapContainer = document.getElementById('doorstepMap');
+        if (!mapContainer || typeof L === 'undefined') return;
+
+        doorstepMap = L.map('doorstepMap', {
+            scrollWheelZoom: false
+        }).setView(studioCoords, 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(doorstepMap);
+
+        const studioIcon = L.divIcon({
+            className: 'custom-pin-base',
+            html: '<div style="background:#413F3D; color:#ffd700; border:2.5px solid #ffffff; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 6px 15px rgba(0,0,0,0.35);" title="Studio Base">🏪</div>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
+        });
+
+        const customerIcon = L.divIcon({
+            className: 'custom-pin-base',
+            html: '<div style="background:#15803d; color:#ffffff; border:2.5px solid #ffffff; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 6px 15px rgba(0,0,0,0.35);" title="Your Doorstep">📍</div>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 36]
+        });
+
+        studioMarker = L.marker(studioCoords, { icon: studioIcon }).addTo(doorstepMap);
+        studioMarker.bindPopup(`<b>{{ shop.Shop_name }}</b><br>📍 Studio Base: ${shopCityName}, ${shopStateName}`);
+
+        customerMarker = L.marker(customerCoords, {
+            icon: customerIcon,
+            draggable: true
+        }).addTo(doorstepMap);
+        customerMarker.bindPopup(`<b>Your Doorstep</b><br>Drag pin or tap map to adjust`);
+
+        routePolyline = L.polyline([studioCoords, customerCoords], {
+            color: '#697184',
+            weight: 3.5,
+            dashArray: '8, 8',
+            opacity: 0.85
+        }).addTo(doorstepMap);
+
+        // Map Click & Drag Events
+        doorstepMap.on('click', function(e) {
+            setCustomerPosition(e.latlng.lat, e.latlng.lng, true);
+        });
+
+        customerMarker.on('dragend', function(e) {
+            const pos = e.target.getLatLng();
+            setCustomerPosition(pos.lat, pos.lng, true);
+        });
+
+        // Initial distance setup
+        setCustomerPosition(customerCoords[0], customerCoords[1], false);
+
+        // Try geocoding actual studio city if different
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(shopCityName + ', ' + shopStateName + ', India')}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    studioCoords = [lat, lon];
+                    if (studioMarker) studioMarker.setLatLng(studioCoords);
+                    if (routePolyline) routePolyline.setLatLngs([studioCoords, customerCoords]);
+                    recalculateDistance();
+                }
+            })
+            .catch(() => {});
+    }
+
+    function setCustomerPosition(lat, lng, doReverseGeocode) {
+        customerCoords = [lat, lng];
+        if (customerMarker) customerMarker.setLatLng(customerCoords);
+        if (routePolyline) routePolyline.setLatLngs([studioCoords, customerCoords]);
+
+        recalculateDistance();
+
+        if (doorstepMap) {
+            const bounds = L.latLngBounds([studioCoords, customerCoords]);
+            doorstepMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+        }
+
+        if (doReverseGeocode) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.address) {
+                        const addr = data.address;
+                        const detectedCity = addr.city || addr.town || addr.village || addr.suburb || addr.county || shopCityName;
+                        const detectedState = addr.state || shopStateName;
+                        const landmark = addr.suburb || addr.neighbourhood || addr.road || '';
+
+                        const destBadge = document.getElementById('badgeCustomerDest');
+                        if (destBadge) {
+                            destBadge.innerText = (landmark ? landmark + ', ' : '') + detectedCity;
+                        }
+
+                        if (!cityInput.value || doReverseGeocode) cityInput.value = detectedCity;
+                        if (!stateInput.value || doReverseGeocode) stateInput.value = detectedState;
+
+                        const doorstepAddrInput = document.getElementById('doorstep_address');
+                        if (doorstepAddrInput) {
+                            doorstepAddrInput.value = data.display_name ? data.display_name.split(',').slice(0, 3).join(',').trim() : detectedCity;
+                        }
+
+                        recalculate();
+                    }
+                })
+                .catch(() => {
+                    recalculate();
+                });
+        }
+    }
+
+    function recalculateDistance() {
+        currentMappedDistanceKm = haversineDistanceKm(studioCoords[0], studioCoords[1], customerCoords[0], customerCoords[1]);
+        const distBadge = document.getElementById('badgeDistanceKm');
+        if (distBadge) distBadge.innerText = currentMappedDistanceKm + ' KM';
+        const mappedDistInput = document.getElementById('mapped_distance_km');
+        if (mappedDistInput) mappedDistInput.value = currentMappedDistanceKm;
+
+        recalculate();
+    }
+
+    function searchLocationQuery(query) {
+        if (!query || !query.trim()) return;
+        const q = query.trim();
+
+        // Check dictionary first for instant response
+        const directCoords = getCoordsForCity(q);
+        if (directCoords && (directCoords[0] !== studioCoords[0] || directCoords[1] !== studioCoords[1])) {
+            setCustomerPosition(directCoords[0], directCoords[1], false);
+            const destBadge = document.getElementById('badgeCustomerDest');
+            if (destBadge) destBadge.innerText = q;
+            cityInput.value = q;
+            recalculate();
+        }
+
+        const searchStatus = document.getElementById('mapStatusPill');
+        if (searchStatus) searchStatus.innerText = '🔍 Locating ' + q + '...';
+
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q + ', ' + shopStateName + ', India')}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    setCustomerPosition(lat, lon, true);
+                    if (searchStatus) searchStatus.innerText = '📍 Pin Dropped on ' + (data[0].name || q);
+                } else {
+                    if (searchStatus) searchStatus.innerText = '📍 Location Set';
+                }
+            })
+            .catch(() => {
+                if (searchStatus) searchStatus.innerText = '📍 Location Set';
+            });
+    }
+
+    function useGPSLocation() {
+        const searchStatus = document.getElementById('mapStatusPill');
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+        if (searchStatus) searchStatus.innerText = '📡 Detecting GPS location...';
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                setCustomerPosition(lat, lng, true);
+                if (searchStatus) searchStatus.innerText = '📍 Live GPS Pin Dropped!';
+            },
+            function(err) {
+                alert('GPS location permission denied or unavailable. You can tap on the map or type your area.');
+                if (searchStatus) searchStatus.innerText = '📍 Tap Map to Drop Pin';
+            },
+            { enableHighAccuracy: true, timeout: 8000 }
+        );
+    }
+
+    // Toolbar Listeners
+    const btnMapSearch = document.getElementById('btnMapSearch');
+    const btnMapGPS = document.getElementById('btnMapGPS');
+    const mapSearchInput = document.getElementById('mapSearchInput');
+
+    if (btnMapSearch) {
+        btnMapSearch.addEventListener('click', function() {
+            searchLocationQuery(mapSearchInput.value);
+        });
+    }
+    if (mapSearchInput) {
+        mapSearchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchLocationQuery(mapSearchInput.value);
+            }
+        });
+    }
+    if (btnMapGPS) {
+        btnMapGPS.addEventListener('click', useGPSLocation);
+    }
+
+    // --- Pricing & Travel Fee Recalculation ---
+    function recalculate() {
+        const servPrice = Math.max(0, Number(estimatedPriceInput.value) || 0);
+        const city = (cityInput.value || '').trim().toLowerCase();
+        const state = (stateInput.value || '').trim().toLowerCase();
+        const sType = serviceTypeSelect ? serviceTypeSelect.value : 'home';
+
+        let travelCharge = 0;
+        let zoneLabel = "Local City";
+
+        if (sType === 'parlour') {
+            travelCharge = 0;
+            zoneLabel = "Studio Visit (₹0 Fee)";
+            const badgeCust = document.getElementById('badgeCustomerDest');
+            if (badgeCust) badgeCust.innerText = "Visiting Studio (" + shopCityName + ")";
+            const badgeDist = document.getElementById('badgeDistanceKm');
+            if (badgeDist) badgeDist.innerText = "0.0 KM (Parlour Visit)";
+        } else {
+            if (currentMappedDistanceKm !== null && currentMappedDistanceKm !== undefined && currentMappedDistanceKm > 0) {
+                if (currentMappedDistanceKm <= 15 || city === shopCity) {
+                    travelCharge = localTravelCharge;
+                    zoneLabel = `Local (≤15 KM: ₹${localTravelCharge})`;
+                } else if (currentMappedDistanceKm <= 80 || state === shopState) {
+                    travelCharge = otherCityCharge;
+                    zoneLabel = `Regional (15-80 KM: ₹${otherCityCharge})`;
+                } else {
+                    travelCharge = otherStateCharge;
+                    zoneLabel = `Outstation (>80 KM: ₹${otherStateCharge})`;
+                }
+            } else if (city !== "" && state !== "") {
+                if (city === shopCity) {
+                    travelCharge = localTravelCharge;
+                    zoneLabel = `Local (₹${localTravelCharge})`;
+                } else if (state === shopState) {
+                    travelCharge = otherCityCharge;
+                    zoneLabel = `Regional (₹${otherCityCharge})`;
+                } else {
+                    travelCharge = otherStateCharge;
+                    zoneLabel = `Outstation (₹${otherStateCharge})`;
+                }
+            } else {
+                travelCharge = localTravelCharge;
+                zoneLabel = `Local Base (₹${localTravelCharge})`;
+            }
+        }
+
+        const badgeZone = document.getElementById('badgeZoneFee');
+        if (badgeZone) badgeZone.innerText = zoneLabel;
+
+        const total = servPrice + travelCharge;
+        const advance = Math.round(total * 0.20 * 100) / 100;
+        const remaining = Math.round((total - advance) * 100) / 100;
+
+        serviceRateDisplay.innerText = servPrice;
+        travelChargeDisplay.innerText = travelCharge;
+        totalBillDisplay.innerText = total;
+        advanceAmountDisplay.innerText = advance;
+        remainingDueDisplay.innerText = remaining;
+        btnAdvanceDisplay.innerText = advance;
+
+        const qrAmountDisplay = document.getElementById('qrAmountDisplay');
+        if (qrAmountDisplay) qrAmountDisplay.innerText = advance;
+        const modalAmountDisplay = document.getElementById('modalAmountDisplay');
+        if (modalAmountDisplay) modalAmountDisplay.innerText = advance;
+    }
+
+    function onServiceSelectChange(selectElem) {
+        if (!selectElem.value) return;
+        if (selectElem.value === 'custom') {
+            serviceInput.value = '';
+            serviceInput.placeholder = 'Type custom service required...';
+            serviceInput.focus();
+        } else {
+            serviceInput.value = selectElem.value;
+        }
+        const selectedOpt = selectElem.options[selectElem.selectedIndex];
+        const price = selectedOpt.getAttribute('data-price');
+        if (price) {
+            estimatedPriceInput.value = price;
+            const sFeeDisp = document.getElementById('serviceFeeDisplay');
+            if (sFeeDisp) sFeeDisp.innerText = price;
+        }
+        recalculate();
+    }
+
+    estimatedPriceInput.addEventListener('input', recalculate);
+    cityInput.addEventListener('input', recalculate);
+    cityInput.addEventListener('change', function() {
+        if (cityInput.value.trim()) {
+            searchLocationQuery(cityInput.value);
+        }
+    });
+    stateInput.addEventListener('input', recalculate);
+    if (serviceTypeSelect) {
+        serviceTypeSelect.addEventListener('change', function() {
+            recalculate();
+            if (doorstepMap) setTimeout(() => doorstepMap.invalidateSize(), 150);
+        });
+    }
+
+    // Set min date to today
+    const dateInput = document.getElementById('booking_date');
+    if (dateInput) {
+        dateInput.min = new Date().toISOString().split('T')[0];
+    }
+
+    // Window load: Initialize Map and calculation
+    window.addEventListener('DOMContentLoaded', function() {
+        initDoorstepMap();
+        const serviceSelectElem = document.getElementById('serviceSelect');
+        if (serviceSelectElem && serviceSelectElem.value && serviceSelectElem.value !== 'custom') {
+            const selectedOpt = serviceSelectElem.options[serviceSelectElem.selectedIndex];
+            const p = selectedOpt.getAttribute('data-price');
+            if (p) {
+                estimatedPriceInput.value = p;
+                const sFeeDisp = document.getElementById('serviceFeeDisplay');
+                if (sFeeDisp) sFeeDisp.innerText = p;
+            }
+        }
+        recalculate();
+    });
+
+    // Payment Method Selection Logic
+    let currentPaymentMethod = 'PhonePe UPI';
+
+    function selectPaymentMethod(type, label) {
+        currentPaymentMethod = label;
+
+        // Update radio buttons
+        const opt = document.getElementById('opt-' + type);
+        if (opt) {
+            const radio = opt.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+        }
+
+        // Reset styles for all pay-options
+        const allOpts = document.querySelectorAll('.pay-option');
+        allOpts.forEach(el => {
+            el.classList.remove('selected');
+            el.style.border = '1.5px solid var(--gray-300)';
+            el.style.background = 'white';
+            el.style.boxShadow = 'none';
+        });
+
+        // Highlight selected option
+        if (opt) {
+            opt.classList.add('selected');
+            let activeColor = '#4f46e5';
+            let activeBg = '#eef2ff';
+            if (type === 'phonepe') { activeColor = '#5f259f'; activeBg = '#faf5ff'; }
+            else if (type === 'gpay') { activeColor = '#1a73e8'; activeBg = '#eff6ff'; }
+            else if (type === 'paytm') { activeColor = '#00baf2'; activeBg = '#f0fdfa'; }
+            else if (type === 'netbanking') { activeColor = '#0f172a'; activeBg = '#f8fafc'; }
+            else if (type === 'otherupi') { activeColor = '#7c3aed'; activeBg = '#f5f3ff'; }
+            else if (type === 'card') { activeColor = '#374151'; activeBg = '#f9fafb'; }
+
+            opt.style.border = '2px solid ' + activeColor;
+            opt.style.background = activeBg;
+            opt.style.boxShadow = '0 6px 16px rgba(0,0,0,0.08)';
+        }
+
+        // Toggle details panels
+        const panels = ['phonepe', 'gpay', 'paytm', 'netbanking', 'otherupi', 'card'];
+        panels.forEach(p => {
+            const panelEl = document.getElementById('panel-' + p);
+            if (panelEl) {
+                panelEl.style.display = (p === type) ? 'block' : 'none';
+            }
+        });
+
+        // Toggle UPI QR box: show for PhonePe, GPay, Paytm, Other UPI
+        const qrBox = document.getElementById('upi-qr-box');
+        if (qrBox) {
+            qrBox.style.display = (type === 'card' || type === 'netbanking') ? 'none' : 'flex';
+        }
+
+        // Update submit button text and modal app display
+        const btnMethodDisplay = document.getElementById('btnMethodDisplay');
+        if (btnMethodDisplay) {
+            btnMethodDisplay.innerText = label;
+        }
+        const modalAppDisplay = document.getElementById('modalAppDisplay');
+        if (modalAppDisplay) {
+            modalAppDisplay.innerText = label;
+        }
+    }
+
+    // Submit handler with simulated payment gateway experience
+    const bookingForm = document.getElementById('bookingForm');
+    const paymentModal = document.getElementById('paymentModal');
+    const modalLoadingState = document.getElementById('modalLoadingState');
+    const modalSuccessState = document.getElementById('modalSuccessState');
+    let isSubmitting = false;
+
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', function(e) {
+            if (isSubmitting) return; // Allow final submission to proceed
+            e.preventDefault();
+
+            if (!bookingForm.checkValidity()) {
+                bookingForm.reportValidity();
+                return;
+            }
+
+            const advance = advanceAmountDisplay.innerText;
+            const modalAmt = document.getElementById('modalAmountDisplay');
+            if (modalAmt) modalAmt.innerText = advance;
+            const modalApp = document.getElementById('modalAppDisplay');
+            if (modalApp) modalApp.innerText = currentPaymentMethod;
+
+            if (paymentModal) {
+                paymentModal.style.display = 'flex';
+                if (modalLoadingState) modalLoadingState.style.display = 'block';
+                if (modalSuccessState) modalSuccessState.style.display = 'none';
+
+                setTimeout(() => {
+                    if (modalLoadingState) modalLoadingState.style.display = 'none';
+                    if (modalSuccessState) modalSuccessState.style.display = 'block';
+
+                    setTimeout(() => {
+                        isSubmitting = true;
+                        bookingForm.submit();
+                    }, 800);
+                }, 1200);
+            } else {
+                isSubmitting = true;
+                bookingForm.submit();
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Job Marketplace - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Header Section -->
+    <div class="page-header" style="align-items: flex-end; margin-bottom: 2rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span class="badge badge-job">ACTIVE MARKETPLACE</span>
+                <span class="badge badge-accepted">DIRECT HIRING</span>
+            </div>
+            <h1 class="page-title" style="margin: 0.2rem 0; font-family: var(--font-heading); font-size: 2.3rem;">
+                💼 Job Need Portal • Studio Hiring Offers
+            </h1>
+            <p class="page-subtitle" style="margin: 0.35rem 0 0; color: var(--text-secondary); font-size: 1rem;">
+                Explore verified job openings and artisan hiring offers posted directly by registered shop owners across your city.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            {% if session.get('user_type') == 'professional' %}
+                <a href="/jobs/post" class="btn btn-gold btn-lg" style="font-weight: 800;">
+                    ➕ Post Studio Job Offer
+                </a>
+                <a href="/my_jobs" class="btn btn-luxury-outline">
+                    📂 My Job Posts
+                </a>
+            {% elif not session.get('user_id') %}
+                <a href="/login" class="btn btn-gold btn-lg" style="font-weight: 800;">
+                    🔑 Shop Owner Login to Post Offer
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Post Type Tabs -->
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <a href="/jobs{% if selected_cat %}?category={{ selected_cat }}{% endif %}" class="btn btn-sm {% if not selected_type %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            📋 All Open Needs ({{ jobs|length }})
+        </a>
+        <a href="/jobs?post_type=need_worker{% if selected_cat %}&category={{ selected_cat }}{% endif %}" class="btn btn-sm {% if selected_type == 'need_worker' %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            🛠️ Workers Needed
+        </a>
+        <a href="/jobs?post_type=need_job{% if selected_cat %}&category={{ selected_cat }}{% endif %}" class="btn btn-sm {% if selected_type == 'need_job' %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            🙋 Seeking Work
+        </a>
+    </div>
+
+    <!-- Search & Filters Bar -->
+    <form method="GET" action="/jobs" class="filter-bar" style="background: #ffffff; border: 1.5px solid var(--border-gold); padding: 1.25rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+        {% if selected_type %}
+            <input type="hidden" name="post_type" value="{{ selected_type }}">
+        {% endif %}
+
+        <div style="flex: 2; min-width: 240px;">
+            <input
+                type="text"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search title, skills (e.g. Electrician, Painter, Beautician)..."
+                style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); color: var(--palette-charcoal); padding: 0.85rem 1rem; border-radius: var(--radius); width: 100%; font-size: 0.95rem;"
+            >
+        </div>
+
+        <div style="flex: 1; min-width: 180px;">
+            <select name="category" onchange="this.form.submit()" style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); color: var(--palette-charcoal); padding: 0.85rem 1rem; border-radius: var(--radius); width: 100%; font-size: 0.95rem;">
+                <option value="">All Categories</option>
+                <option value="Hairstyle" {% if selected_cat == 'Hairstyle' %}selected{% endif %}>💇 Hairstyle</option>
+                <option value="Salon & Beauty" {% if selected_cat == 'Salon & Beauty' %}selected{% endif %}>✨ Salon & Beauty</option>
+                <option value="Electrical" {% if selected_cat == 'Electrical' %}selected{% endif %}>Electrical</option>
+                <option value="Plumbing" {% if selected_cat == 'Plumbing' %}selected{% endif %}>Plumbing</option>
+                <option value="Carpentry" {% if selected_cat == 'Carpentry' %}selected{% endif %}>Carpentry</option>
+                <option value="Appliance Repair" {% if selected_cat == 'Appliance Repair' %}selected{% endif %}>Appliance Repair</option>
+                <option value="Painting" {% if selected_cat == 'Painting' %}selected{% endif %}>Painting</option>
+                <option value="Cleaning" {% if selected_cat == 'Cleaning' %}selected{% endif %}>Cleaning</option>
+                <option value="Driver / Delivery" {% if selected_cat == 'Driver / Delivery' %}selected{% endif %}>Driver & Delivery</option>
+                <option value="Construction / Labour" {% if selected_cat == 'Construction / Labour' %}selected{% endif %}>Construction & Labour</option>
+                <option value="Other" {% if selected_cat == 'Other' %}selected{% endif %}>Other Services</option>
+            </select>
+        </div>
+
+        <div style="flex: 1; min-width: 150px;">
+            <input
+                type="text"
+                name="city"
+                value="{{ selected_city }}"
+                placeholder="City / Region (e.g. Bhilai, Raipur)"
+                style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); color: var(--palette-charcoal); padding: 0.85rem 1rem; border-radius: var(--radius); width: 100%; font-size: 0.95rem;"
+            >
+        </div>
+
+        <button type="submit" class="btn btn-gold" style="font-weight: 700;">
+            🔍 Filter
+        </button>
+
+        {% if search or selected_cat or selected_city or selected_type %}
+            <a href="/jobs" class="btn btn-luxury-outline">
+                ✕ Reset
+            </a>
+        {% endif %}
+    </form>
+
+    <!-- Job Cards Grid -->
+    {% if jobs %}
+        <div class="grid-2">
+            {% for job in jobs %}
+                <div class="job-card" style="background: #ffffff; border: 1.5px solid var(--border-gold); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <!-- Header with Studio Badge & Location -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                            <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+                                <span class="badge" style="background: var(--palette-platinum); color: var(--palette-charcoal); border: 1.5px solid var(--palette-taupe); font-weight: 800;">
+                                    👑 {{ job.Shop_name or 'Verified Studio' }}
+                                </span>
+                                <span class="badge" style="background: rgba(105, 113, 132, 0.12); color: var(--palette-slate); border: 1px solid var(--palette-taupe); font-weight: 700;">
+                                    ✓ Studio Hiring Offer
+                                </span>
+                            </div>
+                            <span class="badge badge-city">📍 {{ job.city or job.shop_city }}</span>
+                        </div>
+
+                        <!-- Title -->
+                        <h2 class="job-title" style="font-size: 1.3rem; margin: 0 0 0.35rem; font-family: var(--font-heading);">
+                            <a href="/jobs/{{ job.id }}" style="color: var(--palette-charcoal); text-decoration: none;">{{ job.title }}</a>
+                        </h2>
+
+                        <!-- Studio Owner & Location info -->
+                        <div style="font-size: 0.88rem; color: var(--palette-slate); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <span>Studio Owner: <strong style="color: var(--palette-charcoal);">{{ job.Owner_name or job.contact_name }}</strong></span>
+                            {% if job.shop_address or job.location %}
+                                <span>•</span>
+                                <span>📍 {{ job.shop_address or job.location }}</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Salary & Work Incentive Details -->
+                        <div style="background: var(--palette-platinum); border: 1px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 0.95rem; margin-bottom: 0.95rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                <div style="color: var(--palette-charcoal); font-weight: 800; font-size: 1.05rem;">
+                                    💰 <b>Salary:</b> {{ job.salary if job.salary else ('₹' + job.budget) }}
+                                </div>
+                                {% if job.commission_percentage %}
+                                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800; font-size: 0.8rem;">
+                                        ⚡ {{ job.commission_percentage }} Work Incentive
+                                    </span>
+                                {% endif %}
+                            </div>
+                            {% if job.working_hours %}
+                                <div style="font-size: 0.8rem; color: var(--palette-slate); font-weight: 600;">
+                                    ⏰ Shifts: {{ job.working_hours }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description Snippet -->
+                        <p style="color: var(--palette-charcoal); font-size: 0.925rem; line-height: 1.6; margin-bottom: 1.1rem;">
+                            {{ job.description[:140] }}{% if job.description|length > 140 %}...{% endif %}
+                        </p>
+
+                        <!-- Tags: Category & Skills -->
+                        <div class="job-tags" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                            <span class="job-tag" style="background: var(--palette-linen); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-size: 0.775rem; padding: 0.25rem 0.65rem; border-radius: var(--radius-sm); font-weight: 600;">
+                                📂 {{ job.category }}
+                            </span>
+                            {% if job.skills_required %}
+                                <span class="job-tag" style="background: rgba(105, 113, 132, 0.15); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-size: 0.775rem; padding: 0.25rem 0.65rem; border-radius: var(--radius-sm); font-weight: 700;">
+                                    ⚡ Skills: {{ job.skills_required }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Card Actions -->
+                    <div style="display: flex; gap: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(212, 175, 55, 0.2); align-items: center; flex-wrap: wrap;">
+                        <a href="/jobs/{{ job.id }}" class="btn btn-gold" style="flex: 1; text-align: center; font-weight: 800; font-size: 0.88rem; padding: 0.75rem;">
+                            📄 Details & Apply
+                        </a>
+
+                        {% if job.contact_phone or job.shop_phone %}
+                            <a href="tel:{{ job.contact_phone or job.shop_phone }}" class="btn btn-luxury-outline" style="font-weight: 700; font-size: 0.88rem; padding: 0.75rem 1rem;" title="Call Studio Directly">
+                                📞 Call: {{ job.Owner_name or job.contact_name }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 4.5rem 2rem; background: #ffffff; border: 1.5px solid var(--border-gold); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+            <div style="font-size: 3.5rem; margin-bottom: 1rem;">👑</div>
+            <h3 style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem; font-family: var(--font-heading);">
+                No Studio Job Offers Found
+            </h3>
+            <p style="color: var(--text-secondary); max-width: 520px; margin: 0 auto 1.75rem; font-size: 0.95rem; line-height: 1.6;">
+                Currently no registered studio owners have posted hiring offers matching your filters. Only offers published by verified shop owners are displayed here.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                {% if session.get('user_type') == 'professional' %}
+                    <a href="/jobs/post" class="btn btn-gold btn-lg" style="font-weight: 800;">
+                        ➕ Post Studio Job Offer
+                    </a>
+                {% elif not session.get('user_id') %}
+                    <a href="/login" class="btn btn-gold btn-lg" style="font-weight: 800;">
+                        🔑 Shop Owner Login to Post Offer
+                    </a>
+                {% endif %}
+                <a href="/jobs" class="btn btn-luxury-outline btn-lg">
+                    View All Studio Offers
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

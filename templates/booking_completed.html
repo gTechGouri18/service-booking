@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Completed - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container-sm" style="max-width: 680px; margin: 3rem auto; padding: 0 1rem;">
+
+    <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); box-shadow: 0 15px 35px rgba(65, 63, 61, 0.08); text-align: center; padding: 3rem 2rem;">
+
+        <!-- Success Celebration Icon -->
+        <div style="width: 80px; height: 80px; background: var(--palette-linen); color: var(--palette-charcoal); border: 1.5px solid var(--palette-taupe); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.5rem;">
+            ✓
+        </div>
+
+        <h1 style="font-size: 2rem; font-weight: 800; color: var(--palette-charcoal); font-family: var(--font-heading); margin-bottom: 0.5rem;">
+            Booking Service Completed!
+        </h1>
+        <p style="color: var(--palette-slate); font-size: 1rem; margin-bottom: 2rem;">
+            The service has been marked complete by the professional.
+        </p>
+
+        <!-- Receipt & Payment Settlement Details Box -->
+        <div style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-md); padding: 1.5rem; text-align: left; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--palette-taupe); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                <span style="color: var(--palette-slate);">Booking ID:</span>
+                <span style="font-weight: 800; color: var(--palette-charcoal);">#{{ booking.Id }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--palette-taupe); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                <span style="color: var(--palette-slate);">Service Done:</span>
+                <span style="font-weight: 700; color: var(--palette-charcoal);">{{ booking.Service }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--palette-taupe); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                <span style="color: var(--palette-slate);">Booking Status:</span>
+                <span class="badge" style="background: var(--palette-charcoal); color: #ffffff; font-weight: 700;">Completed 🎉</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--palette-taupe); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                <span style="color: var(--palette-slate);">Total Bill Amount:</span>
+                <span style="font-weight: 800; color: var(--palette-charcoal); font-size: 1.1rem;">₹{{ booking.Charge }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--palette-taupe); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                <span style="color: var(--palette-slate);">Advance Token Paid at Booking:</span>
+                <span style="font-weight: 700; color: var(--palette-charcoal);">₹{{ booking.advance_amount }} ({{ booking.advance_percentage }}%)</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem;">
+                <span style="font-size: 1.05rem; font-weight: 700; color: var(--palette-charcoal);">Remaining Balance to Pay:</span>
+                {% if booking.payment_status == 'fully_paid' or booking.remaining_amount == 0 %}
+                    <span class="badge" style="background: var(--palette-platinum); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-size: 0.95rem; font-weight: 700;">₹0 (Fully Paid) ✅</span>
+                {% else %}
+                    <span style="font-size: 1.4rem; font-weight: 900; color: var(--palette-charcoal);">₹{{ booking.remaining_amount }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Immediate Remaining Payment Prompt -->
+        {% if session.get('user_type') == 'customer' and booking.remaining_amount > 0 and booking.payment_status != 'fully_paid' %}
+            <div style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.75rem; margin-bottom: 2rem; text-align: left;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h3 style="color: var(--palette-charcoal); font-size: 1.15rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-heading);">
+                        <span>⚡</span> Immediate Settlement Required
+                    </h3>
+                    <span class="badge" style="background: var(--palette-platinum); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-size: 0.85rem; font-weight: 800;">Due: ₹{{ booking.remaining_amount }}</span>
+                </div>
+                <p style="color: var(--palette-slate); font-size: 0.95rem; margin-bottom: 1.25rem;">
+                    Service has been completed successfully. Please settle the remaining balance amount (<b>₹{{ booking.remaining_amount }}</b>) online:
+                </p>
+
+                <form method="POST" action="/pay_remaining/{{ booking.Id }}" id="settlePayForm">
+                    <label style="font-size: 0.9rem; font-weight: 700; color: var(--palette-charcoal); margin-bottom: 0.6rem; display: block;">
+                        💳 Select Online Payment App:
+                    </label>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.65rem; margin-bottom: 1.25rem;">
+                        <label class="rem-pay-opt" id="ropt-phonepe" onclick="selectRemainingMethod('phonepe', 'PhonePe UPI')" style="border: 2px solid var(--palette-charcoal); background: var(--palette-platinum); border-radius: var(--radius-sm); padding: 0.75rem 0.6rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: var(--transition);">
+                            <input type="radio" name="payment_method" value="PhonePe UPI" checked style="width: auto; margin: 0;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.85rem; color: var(--palette-charcoal);">🟣 PhonePe</div>
+                                <div style="font-size: 0.7rem; color: var(--palette-slate);">Instant UPI</div>
+                            </div>
+                        </label>
+
+                        <label class="rem-pay-opt" id="ropt-gpay" onclick="selectRemainingMethod('gpay', 'Google Pay (GPay)')" style="border: 1.5px solid var(--palette-taupe); background: white; border-radius: var(--radius-sm); padding: 0.75rem 0.6rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: var(--transition);">
+                            <input type="radio" name="payment_method" value="Google Pay (GPay)" style="width: auto; margin: 0;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.85rem; color: var(--palette-charcoal);">🔵 Google Pay</div>
+                                <div style="font-size: 0.7rem; color: var(--palette-slate);">GPay UPI</div>
+                            </div>
+                        </label>
+
+                        <label class="rem-pay-opt" id="ropt-paytm" onclick="selectRemainingMethod('paytm', 'Paytm UPI / Wallet')" style="border: 1.5px solid var(--palette-taupe); background: white; border-radius: var(--radius-sm); padding: 0.75rem 0.6rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: var(--transition);">
+                            <input type="radio" name="payment_method" value="Paytm UPI / Wallet" style="width: auto; margin: 0;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.85rem; color: var(--palette-charcoal);">🔷 Paytm</div>
+                                <div style="font-size: 0.7rem; color: var(--palette-slate);">UPI / Wallet</div>
+                            </div>
+                        </label>
+
+                        <label class="rem-pay-opt" id="ropt-netbanking" onclick="selectRemainingMethod('netbanking', 'Net Banking')" style="border: 1.5px solid var(--palette-taupe); background: white; border-radius: var(--radius-sm); padding: 0.75rem 0.6rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: var(--transition);">
+                            <input type="radio" name="payment_method" value="Net Banking" style="width: auto; margin: 0;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.85rem; color: var(--palette-charcoal);">🏦 NetBanking</div>
+                                <div style="font-size: 0.7rem; color: var(--palette-slate);">All Banks</div>
+                            </div>
+                        </label>
+
+                        <label class="rem-pay-opt" id="ropt-otherupi" onclick="selectRemainingMethod('otherupi', 'Other UPI App')" style="border: 1.5px solid var(--palette-taupe); background: white; border-radius: var(--radius-sm); padding: 0.75rem 0.6rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: var(--transition);">
+                            <input type="radio" name="payment_method" value="Other UPI App (BHIM / CRED / Amazon Pay)" style="width: auto; margin: 0;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.85rem; color: var(--palette-charcoal);">⚡ Other UPI</div>
+                                <div style="font-size: 0.7rem; color: var(--palette-slate);">BHIM / CRED</div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Professional's QR Code Scanner for Remaining Balance -->
+                    {% if booking.qr_code %}
+                        <div style="background: white; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.25rem; text-align: center; margin-bottom: 1.25rem; box-shadow: 0 4px 12px rgba(65, 63, 61, 0.05);">
+                            <div style="font-size: 0.95rem; font-weight: 800; color: var(--palette-charcoal); margin-bottom: 0.35rem; font-family: var(--font-heading);">
+                                📱 {{ booking.Shop_name }} Official Payment Scanner
+                            </div>
+                            <p style="font-size: 0.825rem; color: var(--palette-slate); margin-bottom: 0.75rem;">
+                                Scan the professional's QR code below for instant direct payment:
+                            </p>
+                            <div style="display: inline-block; background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.6rem;">
+                                <img src="{{ url_for('static', filename='uploads/' + booking.qr_code) }}" alt="Shop QR Scanner" style="max-width: 180px; max-height: 180px; width: 100%; height: auto; border-radius: var(--radius-sm); display: block; margin: 0 auto; background: white;">
+                            </div>
+                            {% if booking.upi_id %}
+                                <div style="margin-top: 0.6rem; font-size: 0.85rem; font-weight: 700; color: var(--palette-charcoal);">
+                                    UPI ID: <span style="background: var(--palette-platinum); color: var(--palette-charcoal); padding: 0.2rem 0.5rem; border-radius: var(--radius-sm); font-family: monospace;">{{ booking.upi_id }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <button type="submit" id="btnRemainingSubmit" class="btn btn-gold btn-lg btn-block" style="font-size: 1.05rem; padding: 0.95rem; width: 100%; font-weight: 700;">
+                        💳 Pay Remaining ₹{{ booking.remaining_amount }} via <span id="remMethodDisplay">PhonePe UPI</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Simulated Balance Settlement Modal -->
+            <div id="settleModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(65, 63, 61, 0.7); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
+                <div class="card" style="max-width: 420px; width: 90%; text-align: center; padding: 2.5rem; border-radius: var(--radius-lg); box-shadow: 0 20px 45px rgba(65, 63, 61, 0.25); background: #ffffff; border: 1.5px solid var(--palette-taupe);">
+                    <div id="settleLoadingState">
+                        <div style="width: 60px; height: 60px; border: 4px solid var(--palette-linen); border-top: 4px solid var(--palette-charcoal); border-radius: 50%; margin: 0 auto 1.5rem; animation: spin 1s linear infinite;"></div>
+                        <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--palette-charcoal); font-family: var(--font-heading); margin-bottom: 0.5rem;">
+                            Processing via <span id="settleAppDisplay">PhonePe</span>...
+                        </h3>
+                        <p style="color: var(--palette-slate); font-size: 0.9rem; margin-bottom: 1rem;">
+                            Settling remaining amount of <b>₹{{ booking.remaining_amount }}</b>
+                        </p>
+                        <div style="font-size: 0.8rem; color: var(--palette-slate); background: var(--palette-linen); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--palette-taupe);">
+                            🔒 256-bit Encrypted Banking Gateway
+                        </div>
+                    </div>
+                    <div id="settleSuccessState" style="display: none;">
+                        <div style="width: 64px; height: 64px; background: var(--palette-linen); color: var(--palette-charcoal); border: 1.5px solid var(--palette-taupe); border-radius: 50%; font-size: 2.2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                            ✓
+                        </div>
+                        <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--palette-charcoal); font-family: var(--font-heading); margin-bottom: 0.5rem;">
+                            Payment Successfully Settled!
+                        </h3>
+                        <p style="color: var(--palette-slate); font-size: 0.9rem;">
+                            Bill is fully cleared. Opening review page...
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                let currentRemMethod = 'PhonePe UPI';
+                function selectRemainingMethod(type, label) {
+                    currentRemMethod = label;
+                    const opt = document.getElementById('ropt-' + type);
+                    if (opt) {
+                        const radio = opt.querySelector('input[type="radio"]');
+                        if (radio) radio.checked = true;
+                    }
+                    const allOpts = document.querySelectorAll('.rem-pay-opt');
+                    allOpts.forEach(el => {
+                        el.style.border = '1.5px solid var(--palette-taupe)';
+                        el.style.background = 'white';
+                    });
+                    if (opt) {
+                        opt.style.border = '2px solid var(--palette-charcoal)';
+                        opt.style.background = 'var(--palette-platinum)';
+                    }
+                    const remMethodDisplay = document.getElementById('remMethodDisplay');
+                    if (remMethodDisplay) remMethodDisplay.innerText = label;
+                    const settleAppDisplay = document.getElementById('settleAppDisplay');
+                    if (settleAppDisplay) settleAppDisplay.innerText = label;
+                }
+
+                const settlePayForm = document.getElementById('settlePayForm');
+                const settleModal = document.getElementById('settleModal');
+                const settleLoadingState = document.getElementById('settleLoadingState');
+                const settleSuccessState = document.getElementById('settleSuccessState');
+                let settleSubmitting = false;
+
+                if (settlePayForm) {
+                    settlePayForm.addEventListener('submit', function(e) {
+                        if (settleSubmitting) return;
+                        e.preventDefault();
+                        if (settleModal) {
+                            settleModal.style.display = 'flex';
+                            if (settleLoadingState) settleLoadingState.style.display = 'block';
+                            if (settleSuccessState) settleSuccessState.style.display = 'none';
+
+                            setTimeout(() => {
+                                if (settleLoadingState) settleLoadingState.style.display = 'none';
+                                if (settleSuccessState) settleSuccessState.style.display = 'block';
+
+                                setTimeout(() => {
+                                    settleSubmitting = true;
+                                    settlePayForm.submit();
+                                }, 800);
+                            }, 1200);
+                        } else {
+                            settleSubmitting = true;
+                            settlePayForm.submit();
+                        }
+                    });
+                }
+            </script>
+        {% endif %}
+
+        <!-- Navigation Buttons -->
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            {% if session.get('user_type') == 'professional' %}
+                <a href="/booking_requests" class="btn btn-gold">
+                    📋 Booking Requests
+                </a>
+                <a href="/professional_dashboard" class="btn btn-luxury-outline">
+                    📊 Dashboard
+                </a>
+            {% else %}
+                <a href="/my_bookings" class="btn btn-gold">
+                    📋 My Bookings
+                </a>
+                {% if booking.payment_status == 'fully_paid' or booking.remaining_amount == 0 %}
+                    <a href="/add_review/{{ booking.Id }}" class="btn btn-luxury-outline">
+                        ⭐ Give Review & Feedback
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Discover Exceptional Services - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 3.5rem; padding-bottom: 5rem;">
+
+    <!-- Page Header -->
+    <div style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+            <span class="section-tag">CURATED PROFESSIONAL NETWORK</span>
+            <h1 class="section-title" style="margin-bottom: 0.5rem;">
+                Discover <span class="gold">Exceptional Services</span>
+            </h1>
+            <p class="section-subtitle">
+                Explore vetted local salons, master technicians, and verified service providers ready to serve you.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            {% if session.get('user_type') == 'customer' %}
+                <a href="/customer_dashboard" class="btn btn-luxury-outline">⬅ Dashboard</a>
+            {% endif %}
+            <a href="/jobs/post" class="btn btn-gold">💼 Post A Job Need</a>
+        </div>
+    </div>
+
+    <!-- Multi-Filter Search Bar (Category, City, Location, Professional Name) -->
+    <form method="GET" action="/find_services" style="background: var(--bg-charcoal); border: 1.5px solid var(--border-gold); border-radius: var(--radius-md); padding: 1.75rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lux);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.15rem; margin-bottom: 1.25rem;">
+            
+            <!-- 1. Search by Name / Keyword -->
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="search" style="font-size: 0.85rem; color: var(--gold-light);">👤 Business / Master Name</label>
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    value="{{ search }}"
+                    placeholder="e.g. Styleshair, Beauty Bar, Volt..."
+                >
+            </div>
+
+            <!-- 2. Filter by Category -->
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="category" style="font-size: 0.85rem; color: var(--gold-light);">📂 Service Category</label>
+                <select id="category" name="category">
+                    <option value="">All Categories</option>
+                    <option value="hair" {% if category == 'hair' %}selected{% endif %}>💇 Salon & Hair Styling</option>
+                    <option value="spa" {% if category == 'spa' %}selected{% endif %}>✨ Spa & Aesthetic Facial</option>
+                    <option value="electric" {% if category == 'electric' %}selected{% endif %}>⚡ Electrical & Smart Wiring</option>
+                    <option value="ac" {% if category == 'ac' %}selected{% endif %}>❄️ AC & HVAC Servicing</option>
+                    <option value="plumb" {% if category == 'plumb' %}selected{% endif %}>💧 Plumbing & Leak Repair</option>
+                    <option value="clean" {% if category == 'clean' %}selected{% endif %}>🧼 Luxury Deep Cleaning</option>
+                </select>
+            </div>
+
+            <!-- 3. Filter by City -->
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="city" style="font-size: 0.85rem; color: var(--gold-light);">📍 City</label>
+                <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    value="{{ city }}"
+                    placeholder="e.g. Bhilai, Raipur, Durg..."
+                >
+            </div>
+
+            <!-- 4. Filter by Location / Area -->
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="location" style="font-size: 0.85rem; color: var(--gold-light);">🏠 Specific Area / Landmark</label>
+                <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    value="{{ location }}"
+                    placeholder="e.g. Sector 6, Civil Lines..."
+                >
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem;">
+            {% if search or city or category or location %}
+                <a href="/find_services" class="btn btn-sm btn-luxury-outline">
+                    ✕ Reset All Filters
+                </a>
+            {% endif %}
+            <button type="submit" class="btn btn-gold">
+                🔍 Filter Services
+            </button>
+        </div>
+    </form>
+
+    <!-- Popular City Filter Pills -->
+    {% if cities %}
+        <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 2.75rem;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--gold-muted); letter-spacing: 0.05em; text-transform: uppercase;">
+                Popular Cities:
+            </span>
+            <a href="/find_services" class="badge {% if not city %}badge-completed{% else %}badge-city{% endif %}" style="padding: 0.4rem 1rem;">
+                All Cities
+            </a>
+            {% for c in cities %}
+                <a href="/find_services?city={{ c }}" class="badge {% if city == c %}badge-completed{% else %}badge-city{% endif %}" style="padding: 0.4rem 1rem;">
+                    📍 {{ c }}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Service Shops Grid -->
+    {% if shops %}
+        <div class="grid-3">
+            {% for shop in shops %}
+                <div class="service-card">
+                    
+                    <!-- Large Card Cover Image -->
+                    <div style="position: relative; height: 210px; overflow: hidden; background: #0f0f14;">
+                        {% if shop.cover_image %}
+                            <img src="{{ url_for('static', filename='uploads/' + shop.cover_image) }}" alt="{{ shop.Shop_name }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
+                        {% elif 'hair' in shop.Work_details.lower() or 'salon' in shop.Work_details.lower() or 'beauty' in shop.Work_details.lower() %}
+                            <img src="{{ url_for('static', filename='images/parlour_work.jpg') }}" alt="{{ shop.Shop_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% elif 'electric' in shop.Work_details.lower() %}
+                            <img src="{{ url_for('static', filename='images/electrician_work.jpg') }}" alt="{{ shop.Shop_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% elif 'ac' in shop.Work_details.lower() or 'repair' in shop.Work_details.lower() %}
+                            <img src="{{ url_for('static', filename='images/ac_repair_work.jpg') }}" alt="{{ shop.Shop_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/hero_luxury.jpg') }}" alt="{{ shop.Shop_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% endif %}
+
+                        <span style="position: absolute; top: 1rem; left: 1rem; background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(8px); color: var(--gold-light); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 800; border: 1px solid var(--border-gold);">
+                            ★ {{ shop.avg_rating }} ({{ shop.review_count }} Reviews)
+                        </span>
+
+                        <span style="position: absolute; top: 1rem; right: 1rem; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #a7f3d0; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 800; backdrop-filter: blur(8px);">
+                            <span class="pulse-dot"></span> Verified Studio
+                        </span>
+                    </div>
+
+                    <!-- Card Header -->
+                    <div class="service-card-header">
+                        <div>
+                            <h2 class="service-card-title">
+                                <a href="/professional/{{ shop.User_id }}" style="color: inherit; text-decoration: none;">{{ shop.Shop_name }}</a>
+                            </h2>
+                            <span class="badge badge-city" style="margin-top: 0.4rem;">
+                                📍 {{ shop.City }}, {{ shop.State }}
+                            </span>
+                        </div>
+                        {% if shop.qr_code %}
+                            <span class="badge" style="background: rgba(212, 175, 55, 0.15); border: 1px solid var(--border-gold); color: var(--gold-light); font-size: 0.75rem;">
+                                📱 QR Scanner
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="service-card-body">
+                        <div class="service-meta-item">
+                            <span>👤 <b>Master In Charge:</b> {{ shop.Owner_name }}</span>
+                        </div>
+                        <div class="service-meta-item">
+                            <span>📞 <b>Direct Phone:</b> <a href="tel:{{ shop.Phone }}">{{ shop.Phone }}</a></span>
+                        </div>
+                        <div class="service-meta-item">
+                            <span>🏠 <b>Studio Address:</b> {{ shop.Address }}</span>
+                        </div>
+                        <div class="service-meta-item">
+                            <span>🎯 <b>Service Coverage:</b> {{ shop.Service_area }}</span>
+                        </div>
+
+                        <!-- Offerings Preview -->
+                        {% if shop.services %}
+                            <div style="margin: 1.15rem 0; padding: 0.85rem 1rem; background: var(--palette-platinum); border-radius: var(--radius-sm); border: 1px solid var(--palette-taupe);">
+                                <div style="font-size: 0.75rem; font-weight: 700; color: var(--palette-charcoal); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                                    Available Services & Specialties:
+                                </div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                                    {% for s in shop.services %}
+                                        <span style="display: inline-flex; align-items: center; background: #ffffff; border: 1px solid var(--palette-taupe); padding: 0.25rem 0.65rem; border-radius: var(--radius-full); font-size: 0.825rem; color: var(--palette-charcoal); font-weight: 600;">
+                                             ✦ {{ s.service_name }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div style="margin: 1rem 0; padding: 0.85rem; background: var(--palette-linen); border-radius: var(--radius-sm); border: 1px solid var(--palette-taupe);">
+                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--palette-charcoal); text-transform: uppercase; letter-spacing: 0.05em;">About Artistry:</div>
+                            <div style="font-size: 0.88rem; color: var(--palette-charcoal); margin-top: 0.25rem; line-height: 1.5;">
+                                {{ shop.Work_details }}
+                            </div>
+                        </div>
+
+                        <!-- Transparent Service & Travel Charges -->
+                        <div class="service-rates">
+                            {% if shop.Service_charge and shop.Service_charge != '0' %}
+                            <div>
+                                <div class="rate-label">Service Charge:</div>
+                                <div class="rate-val" style="color: #15803d; font-weight: 800;">₹{{ shop.Service_charge }}</div>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <div class="rate-label">Local Travel:</div>
+                                <div class="rate-val">₹{{ shop.Local_travel_charge or 0 }}</div>
+                            </div>
+                            <div>
+                                <div class="rate-label">Other City:</div>
+                                <div class="rate-val">₹{{ shop.Other_city_charge or 0 }}</div>
+                            </div>
+                            <div>
+                                <div class="rate-label">Outstation:</div>
+                                <div class="rate-val">₹{{ shop.Other_state_charge or 0 }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Action -->
+                    <div class="card-footer" style="display: flex; gap: 0.6rem;">
+                        <a href="/professional/{{ shop.User_id }}" class="btn btn-luxury-outline" style="flex: 1; text-align: center; font-weight: 700; padding: 0.85rem 0.5rem; font-size: 0.9rem;">
+                            👤 View Profile & Work
+                        </a>
+                        {% if session.get('user_type') != 'professional' %}
+                            <a href="/book/{{ shop.User_id }}" class="btn btn-gold" style="flex: 1; text-align: center; font-weight: 800; padding: 0.85rem 0.5rem; font-size: 0.9rem;">
+                                📅 Book Now &rarr;
+                            </a>
+                        {% elif session.get('user_id') == shop.User_id %}
+                            <a href="/shop_profile" class="btn btn-gold" style="flex: 1; text-align: center; font-weight: 800; padding: 0.85rem 0.5rem; font-size: 0.9rem;">
+                                🏪 My Studio Profile
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 4.5rem 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.75rem; color: var(--text-primary); margin-bottom: 0.5rem;">
+                No Matching Professionals Found
+            </h3>
+            <p style="color: var(--text-muted); font-size: 1rem; max-width: 500px; margin: 0 auto 1.75rem;">
+                Try broadening your search query, selecting another category, or clearing the city filter.
+            </p>
+            <a href="/find_services" class="btn btn-gold">
+                Reset All Filters
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

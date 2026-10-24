@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}My Work & Portfolio - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+
+    <!-- Header -->
+    <div class="page-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--palette-platinum); padding-bottom: 1.5rem;">
+        <div>
+            <h1 class="page-title" style="font-family: var(--font-heading); color: var(--palette-charcoal); font-size: 2rem; margin-bottom: 0.5rem;">
+                🖼️ My Work & Portfolio Gallery
+            </h1>
+            <p class="page-subtitle" style="color: var(--palette-slate); font-size: 0.95rem; margin: 0;">
+                Showcase your completed projects, client work photos, and designs to attract more clients
+            </p>
+        </div>
+        <a href="/professional_dashboard" class="btn btn-luxury-outline">
+            ⬅ Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Upload Form Card -->
+    <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(65, 63, 61, 0.06); padding: 2rem; margin-bottom: 3rem;">
+        <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--palette-charcoal); font-family: var(--font-heading); margin-bottom: 1.25rem;">
+            📤 Upload New Work Photo
+        </h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-row">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="title" style="font-weight: 700; color: var(--palette-charcoal);">Work / Hairstyle Title <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        placeholder="e.g. Bridal Hairstyle, Party Hairstyle, Engagement Look"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                    >
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="service_charge" style="font-weight: 700; color: var(--palette-charcoal);">Service Charge for this Hairstyle / Work (₹) <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="text"
+                        id="service_charge"
+                        name="service_charge"
+                        placeholder="e.g. 500, 1000 or 500 / 1000"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen); font-weight: 700;"
+                    >
+                    <div style="font-size: 0.8rem; color: var(--palette-slate); margin-top: 0.35rem;">
+                        This charge will be shown clearly below this photo on your profile (e.g. 500 or 500 / 1000)
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="image" style="font-weight: 700; color: var(--palette-charcoal);">Choose Work Photo <span class="required" style="color: #dc2626;">*</span></label>
+                    <input
+                        type="file"
+                        id="image"
+                        name="image"
+                        accept="image/*"
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.55rem; width: 100%; color: var(--palette-charcoal); background: #ffffff;"
+                    >
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="description" style="font-weight: 700; color: var(--palette-charcoal);">Short Description <span class="required" style="color: #dc2626;">*</span></label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="2"
+                        placeholder="Briefly describe what work was done in this photo..."
+                        required
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen); font-family: inherit;"
+                    ></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-gold btn-lg" style="font-weight: 700; padding: 0.85rem 1.75rem;">
+                📤 Upload to Portfolio
+            </button>
+        </form>
+    </div>
+
+    <!-- Gallery Grid -->
+    <div>
+        <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--palette-charcoal); font-family: var(--font-heading); margin-bottom: 1.5rem;">
+            Your Uploaded Work Gallery ({{ works|length }})
+        </h2>
+
+        {% if works %}
+            <div class="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                {% for work in works %}
+                    <div class="gallery-card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 10px 25px rgba(65, 63, 61, 0.06);">
+                        <div class="gallery-img-wrap" style="height: 220px; overflow: hidden; background: var(--palette-linen);">
+                            <img
+                                src="{{ url_for('static', filename='uploads/' + work.image) }}"
+                                alt="{{ work.title }}"
+                                loading="lazy"
+                                style="width: 100%; height: 100%; object-fit: cover;"
+                            >
+                        </div>
+                        <div class="gallery-info" style="padding: 1.25rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+                                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--palette-charcoal); margin: 0; font-family: var(--font-heading); flex: 1;">
+                                    {{ work.title }}
+                                </h3>
+                                {% if work.service_charge %}
+                                <span style="background: var(--palette-platinum); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-weight: 800; font-size: 0.88rem; padding: 0.25rem 0.65rem; border-radius: var(--radius-sm); white-space: nowrap;">
+                                    💰 ₹{{ work.service_charge }}
+                                </span>
+                                {% endif %}
+                            </div>
+
+                            {% if work.service_charge %}
+                            <div style="background: var(--palette-linen); border-left: 3px solid var(--palette-charcoal); padding: 0.35rem 0.65rem; border-radius: 3px; font-size: 0.85rem; font-weight: 700; color: var(--palette-charcoal); margin-bottom: 0.65rem;">
+                                Service Charge: <span style="font-weight: 900; color: #15803d;">₹{{ work.service_charge }}</span>
+                            </div>
+                            {% endif %}
+
+                            <p style="color: var(--palette-slate); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1rem;">
+                                {{ work.description }}
+                            </p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--palette-platinum); padding-top: 0.75rem;">
+                                <span style="font-size: 0.8rem; color: var(--palette-taupe);">
+                                    {{ work.created_at.strftime('%d %b %Y') if work.created_at else '' }}
+                                </span>
+                                <a href="/delete_work/{{ work.Id }}" class="btn btn-sm btn-luxury-outline" style="border-color: #dc2626; color: #dc2626;" onclick="return confirm('Delete this work photo?');">
+                                    🗑️ Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); text-align: center; padding: 3rem 2rem; box-shadow: 0 10px 30px rgba(65, 63, 61, 0.06);">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🖼️</div>
+                <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--palette-charcoal); margin-bottom: 0.5rem; font-family: var(--font-heading);">
+                    No Portfolio Images Yet
+                </h3>
+                <p style="color: var(--palette-slate); max-width: 450px; margin: 0 auto 1.5rem; font-size: 0.95rem;">
+                    Upload photos of your work above. Clients love seeing real pictures before making a booking!
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

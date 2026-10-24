@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Post a Job Need - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container-md">
+
+    <div class="card" style="box-shadow: var(--shadow-lux); padding: 2.75rem 2.25rem; background: #ffffff; border: 1.5px solid var(--border-gold); border-radius: var(--radius-lg);">
+
+        <!-- Header -->
+        <div style="margin-bottom: 2.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                <span class="badge" style="background: rgba(212, 175, 55, 0.18); color: var(--gold-dark); border: 1px solid var(--border-gold); font-weight: 800;">
+                    👑 SHOP OWNER HIRING
+                </span>
+                <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800;">
+                    Instant Live in Job Need
+                </span>
+            </div>
+            <h1 class="page-title" style="font-family: var(--font-heading); font-size: 2rem; color: var(--text-primary); margin: 0.35rem 0 0.5rem;">
+                ➕ Post Studio Job Offer
+            </h1>
+            <p class="page-subtitle" style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin: 0;">
+                Publish a job opening or staffing requirement for your studio <b>{{ shop.Shop_name if shop else 'your shop' }}</b>. Skilled workers and artisans across your city will discover and apply.
+            </p>
+        </div>
+
+        <form method="POST">
+            <!-- Hidden post_type for shop owner hiring offer -->
+            <input type="hidden" name="post_type" value="need_worker">
+
+            <!-- Job Title -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="title" style="font-weight: 700; color: var(--text-primary);">
+                    Title / Headline <span class="required">*</span>
+                </label>
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    placeholder="e.g. Urgent Electrician required for house wiring / Experienced Hair Stylist seeking salon job"
+                    required
+                    style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); color: var(--palette-charcoal); padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.95rem;"
+                >
+            </div>
+
+            <!-- Category -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="category" style="font-weight: 700; color: var(--text-primary);">
+                    Work Category <span class="required">*</span>
+                </label>
+                <select id="category" name="category" required style="background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); color: var(--palette-charcoal); padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.95rem;">
+                    <option value="">Select Work Category</option>
+                    <option value="Hairstyle">💇 Hairstyle</option>
+                    <option value="Salon & Beauty">✨ Salon, Parlour & Beauty</option>
+                    <option value="Electrical">⚡ Electrical & Wiring</option>
+                    <option value="Plumbing">🔧 Plumbing & Fitting</option>
+                    <option value="Carpentry">🪚 Carpentry & Woodwork</option>
+                    <option value="Appliance Repair">❄️ AC & Appliance Repair</option>
+                    <option value="Painting">🎨 Painting & Wall Care</option>
+                    <option value="Cleaning">🧹 Deep Cleaning & Househelp</option>
+                    <option value="Driver / Delivery">🚗 Driver & Delivery</option>
+                    <option value="Construction / Labour">🧱 Construction & Labour</option>
+                    <option value="Other">🛠️ Other Custom Work</option>
+                </select>
+            </div>
+
+            <!-- Salary & Work Commission Section (Owner Specified) -->
+            <div style="background: var(--palette-platinum); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.75rem;">
+                <div style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--palette-charcoal); margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>💰</span> Compensation & Work Incentive (Set by Shop Owner)
+                </div>
+                <p style="font-size: 0.85rem; color: var(--palette-slate); margin: 0 0 1.25rem; line-height: 1.5;">
+                    Specify the guaranteed base salary and what percentage commission the hired artisan will earn according to their completed work.
+                </p>
+
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="salary" style="font-weight: 700; color: var(--palette-charcoal);">
+                            Base / Monthly Salary (₹) <span class="required">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="salary"
+                            name="salary"
+                            placeholder="e.g. ₹20,000 / month, ₹800 / day"
+                            required
+                            style="background: #ffffff; border: 1.5px solid var(--palette-taupe); color: var(--palette-charcoal); padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.95rem;"
+                        >
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="commission_percentage" style="font-weight: 700; color: var(--palette-charcoal);">
+                            Work Commission / Share (%)
+                        </label>
+                        <input
+                            type="text"
+                            id="commission_percentage"
+                            name="commission_percentage"
+                            placeholder="e.g. 15% per service, 20% on bridal work"
+                            style="background: #ffffff; border: 1.5px solid var(--palette-taupe); color: var(--palette-charcoal); padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.95rem;"
+                        >
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="working_hours" style="font-weight: 700; color: var(--text-primary);">
+                            Working Hours / Shifts
+                        </label>
+                        <input
+                            type="text"
+                            id="working_hours"
+                            name="working_hours"
+                            placeholder="e.g. 10:00 AM – 7:30 PM (6 Days)"
+                            style="background: #ffffff; border: 1.5px solid var(--border-gold); color: var(--text-primary); padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.95rem;"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills Required or Your Skills -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="skills_required" style="font-weight: 700; color: var(--text-primary);">
+                    Key Skills / Requirements
+                </label>
+                <input
+                    type="text"
+                    id="skills_required"
+                    name="skills_required"
+                    placeholder="e.g. 2+ yrs experience, Bridal makeup, Split AC jet cleaning, Inverter installation"
+                    style="background: #faf6ed; border: 1.5px solid var(--border-gold); color: var(--text-primary); padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.95rem;"
+                >
+            </div>
+
+            <!-- Detailed Description -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="description" style="font-weight: 700; color: var(--text-primary);">
+                    Complete Details & Instructions <span class="required">*</span>
+                </label>
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="4"
+                    placeholder="Describe exactly what work is needed or what skills you offer, timings, duration, tools needed..."
+                    required
+                    style="background: #faf6ed; border: 1.5px solid var(--border-gold); color: var(--text-primary); padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.95rem;"
+                ></textarea>
+            </div>
+
+            <!-- Location & City Row -->
+            <div class="form-row">
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="location" style="font-weight: 700; color: var(--text-primary);">
+                        Studio Area / Landmark <span class="required">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        value="{{ shop.Address if shop else '' }}"
+                        placeholder="e.g. Sector-6 Market, Near Railway Station"
+                        required
+                        style="background: #faf6ed; border: 1.5px solid var(--border-gold); color: var(--text-primary); padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.95rem;"
+                    >
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="city" style="font-weight: 700; color: var(--text-primary);">
+                        City <span class="required">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        value="{{ shop.City if shop else '' }}"
+                        placeholder="e.g. Bhilai, Raipur, Durg"
+                        required
+                        style="background: #faf6ed; border: 1.5px solid var(--border-gold); color: var(--text-primary); padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.95rem;"
+                    >
+                </div>
+            </div>
+
+            <!-- Contact Information Row -->
+            <div class="form-row">
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="contact_name" style="font-weight: 700; color: var(--text-primary);">
+                        Studio Contact Name <span class="required">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="contact_name"
+                        name="contact_name"
+                        value="{{ shop.Owner_name if shop else session.get('user_name', '') }}"
+                        placeholder="Your full name"
+                        required
+                        style="background: #faf6ed; border: 1.5px solid var(--border-gold); color: var(--text-primary); padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.95rem;"
+                    >
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="contact_phone" style="font-weight: 700; color: var(--text-primary);">
+                        Contact Phone / WhatsApp <span class="required">*</span>
+                    </label>
+                    <input
+                        type="tel"
+                        id="contact_phone"
+                        name="contact_phone"
+                        value="{{ shop.Phone if shop else session.get('user_phone', '') }}"
+                        placeholder="e.g. 9876543210"
+                        required
+                        style="background: #faf6ed; border: 1.5px solid var(--border-gold); color: var(--text-primary); padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.95rem;"
+                    >
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-gold btn-block btn-lg" style="margin-top: 1.5rem; font-weight: 800; font-size: 1.05rem; padding: 1rem;">
+                🚀 Publish Studio Job Offer &rarr;
+            </button>
+        </form>
+
+        <div style="margin-top: 2rem; text-align: center; border-top: 1px solid rgba(212, 175, 55, 0.2); padding-top: 1.25rem;">
+            <a href="/jobs" class="btn btn-luxury-outline">
+                ⬅ Back to Job Marketplace
+            </a>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders History - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+
+    <!-- Header -->
+    <div class="page-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--palette-platinum); padding-bottom: 1.5rem;">
+        <div>
+            <h1 class="page-title" style="font-family: var(--font-heading); color: var(--palette-charcoal); font-size: 2rem; margin-bottom: 0.5rem;">
+                📦 Professional Orders & Booking History
+            </h1>
+            <p class="page-subtitle" style="color: var(--palette-slate); font-size: 0.95rem; margin: 0;">
+                View all your customer orders, completed engagements, and past booking records
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="/professional_dashboard" class="btn btn-luxury-outline">⬅ Dashboard</a>
+            <a href="/booking_requests" class="btn btn-gold">📋 Booking Requests</a>
+        </div>
+    </div>
+
+    <!-- Status Tabs -->
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; border-bottom: 1.5px solid var(--palette-taupe); padding-bottom: 1rem;">
+        <a href="/my_orders" class="btn btn-sm {% if not active_status %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            All Orders ({{ orders|length }})
+        </a>
+        <a href="/my_orders?status=completed" class="btn btn-sm {% if active_status == 'completed' %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            🎉 Completed
+        </a>
+        <a href="/my_orders?status=accepted" class="btn btn-sm {% if active_status == 'accepted' %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            🔄 Ongoing / Accepted
+        </a>
+        <a href="/my_orders?status=pending" class="btn btn-sm {% if active_status == 'pending' %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            ⏳ Pending
+        </a>
+        <a href="/my_orders?status=cancelled" class="btn btn-sm {% if active_status == 'cancelled' %}btn-gold{% else %}btn-luxury-outline{% endif %}">
+            ❌ Cancelled
+        </a>
+    </div>
+
+    <!-- Orders Table -->
+    {% if orders %}
+        <div class="table-responsive" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 10px 30px rgba(65, 63, 61, 0.06);">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: var(--palette-platinum); border-bottom: 1.5px solid var(--palette-taupe);">
+                    <tr>
+                        <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700; width: 60px;">S.No</th>
+                        <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Order ID</th>
+                        <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Customer</th>
+                        <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Contact</th>
+                        <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Service</th>
+                        <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Type</th>
+                        <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Date & Time</th>
+                        <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Location</th>
+                        <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Total Amount</th>
+                        <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Status</th>
+                        <th style="padding: 1rem; color: var(--palette-charcoal); font-weight: 700;">Receipt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr style="border-bottom: 1px solid var(--palette-taupe);">
+                            <td style="padding: 1rem; text-align: center;"><b style="color: var(--palette-charcoal);">{{ loop.index }}</b></td>
+                            <td style="padding: 1rem;"><b style="color: var(--palette-charcoal);">#{{ order.Id }}</b></td>
+                            <td style="padding: 1rem;">
+                                <b style="color: var(--palette-charcoal);">{{ order.customer_name }}</b>
+                            </td>
+                            <td style="padding: 1rem;">
+                                {% if order.customer_phone %}
+                                    <a href="tel:{{ order.customer_phone }}" style="color: var(--palette-charcoal); font-weight: 600;">📞 {{ order.customer_phone }}</a>
+                                {% else %}
+                                    <span style="color: var(--palette-taupe);">-</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 1rem; color: var(--palette-charcoal); font-weight: 600;">{{ order.Service }}</td>
+                            <td style="padding: 1rem;">
+                                {% if order.Service_Type == 'home' %}
+                                    <span class="badge" style="background: var(--palette-linen); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-size: 0.75rem;">🏠 Home</span>
+                                {% elif order.Service_Type == 'parlour' %}
+                                    <span class="badge" style="background: var(--palette-platinum); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-size: 0.75rem;">💇 Shop</span>
+                                {% else %}
+                                    <span class="badge" style="background: var(--palette-linen); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-size: 0.75rem;">{{ order.Service_Type }}</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div style="color: var(--palette-charcoal); font-weight: 600;">{{ order.Booking_date }}</div>
+                                <div style="font-size: 0.8rem; color: var(--palette-slate);">{{ order.Booking_time }}</div>
+                            </td>
+                            <td style="padding: 1rem; color: var(--palette-slate); font-size: 0.9rem;">{{ order.Location }}</td>
+                            <td style="padding: 1rem;">
+                                <b style="color: var(--palette-charcoal); font-size: 1.05rem;">₹{{ order.Charge }}</b>
+                            </td>
+                            <td style="padding: 1rem;">
+                                {% if order.Status == 'pending' %}
+                                    <span class="badge" style="background: var(--palette-linen); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-weight: 700;">⏳ Pending</span>
+                                {% elif order.Status == 'accepted' %}
+                                    <span class="badge" style="background: var(--palette-platinum); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); font-weight: 700;">✅ Accepted</span>
+                                {% elif order.Status == 'completed' %}
+                                    <span class="badge" style="background: var(--palette-charcoal); color: #ffffff; font-weight: 700;">🎉 Completed</span>
+                                {% elif order.Status == 'cancelled' %}
+                                    <span class="badge" style="background: #fee2e2; border: 1px solid #fca5a5; color: #dc2626; font-weight: 700;">❌ Cancelled</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 1rem;">
+                                {% if order.Status == 'completed' %}
+                                    <a href="/booking_completed/{{ order.Id }}" class="btn btn-sm btn-luxury-outline">
+                                        📄 Receipt
+                                    </a>
+                                {% else %}
+                                    <a href="/booking_requests" class="btn btn-sm btn-gold">
+                                        Manage
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); text-align: center; padding: 4rem 2rem; box-shadow: 0 10px 30px rgba(65, 63, 61, 0.06);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+            <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--palette-charcoal); margin-bottom: 0.5rem; font-family: var(--font-heading);">
+                No Orders in this Category
+            </h3>
+            <p style="color: var(--palette-slate); max-width: 450px; margin: 0 auto 1.5rem; font-size: 0.95rem;">
+                You currently do not have any orders in this category.
+            </p>
+            <a href="/my_orders" class="btn btn-luxury-outline">View All Orders</a>
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 2rem;">
+        <a href="/professional_dashboard" class="btn btn-luxury-outline">
+            ⬅ Back to Professional Dashboard
+        </a>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Login - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container-sm" style="max-width: 500px; margin: 3.5rem auto; padding: 0 1rem;">
+    <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); box-shadow: var(--shadow-lux); padding: 2.75rem 2.25rem;">
+        
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="width: 68px; height: 68px; background: var(--palette-platinum); border: 1.5px solid var(--palette-taupe); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem; color: var(--palette-charcoal);">
+                🗝️
+            </div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--palette-slate); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.35rem;">
+                ✦ Restricted Access
+            </div>
+            <h1 style="font-family: var(--font-heading); font-size: 1.85rem; color: var(--palette-charcoal); margin-bottom: 0.5rem;">
+                Administrator Login
+            </h1>
+            <p style="color: var(--palette-slate); font-size: 0.925rem; line-height: 1.6;">
+                Log in to inspect ecosystem telemetry, govern user records, bookings, and platform settings.
+            </p>
+        </div>
+
+        <form method="POST" action="/admin/login">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label for="email" style="font-weight: 700; color: var(--palette-charcoal);">Admin Email Address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="admin@servicehub.com"
+                    autocomplete="email"
+                    style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                >
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label for="password" style="font-weight: 700; color: var(--palette-charcoal);">Admin Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter account password"
+                    autocomplete="current-password"
+                    style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                >
+            </div>
+
+            <div style="position: relative; text-align: center; margin: 1.5rem 0 1.25rem;">
+                <hr style="border: none; border-top: 1px solid var(--palette-taupe);">
+                <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #ffffff; padding: 0 0.75rem; color: var(--palette-slate); font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">OR QUICK PASSCODE</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="passcode" style="font-weight: 700; color: var(--palette-charcoal);">Security Key / Passcode</label>
+                <input
+                    type="password"
+                    id="passcode"
+                    name="passcode"
+                    placeholder="Master Passcode (e.g. admin123)"
+                    style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                >
+                <div class="form-help" style="color: var(--palette-slate); font-size: 0.825rem; margin-top: 0.35rem;">
+                    Default master key: <b style="color: var(--palette-charcoal);">admin123</b>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-gold btn-block btn-lg" style="width: 100%; padding: 0.95rem; font-weight: 800; font-size: 1rem;">
+                🗝️ Login & Unlock Command Center
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--palette-platinum); font-size: 0.925rem;">
+            <p style="color: var(--palette-slate); margin-bottom: 0.75rem;">
+                Need to create a new Administrator profile?
+            </p>
+            <a href="/admin/register" class="btn btn-luxury-outline" style="display: block; width: 100%; padding: 0.75rem; font-weight: 700; text-align: center; text-decoration: none; margin-bottom: 0.75rem;">
+                ✨ Register New Administrator
+            </a>
+            <div style="margin-top: 0.5rem;">
+                <a href="/" style="color: var(--palette-slate); font-size: 0.85rem;">⬅ Back to Public Experience</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

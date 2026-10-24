@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - ServiceHub{% endblock %}
+
+{% block content %}
+<div class="container-sm" style="max-width: 580px; margin: 3rem auto; padding: 0 1rem;">
+    <div class="card" style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-lg); box-shadow: 0 15px 35px rgba(65, 63, 61, 0.08); padding: 2.5rem 2rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="margin: 0 auto 1rem; width: 64px; height: 64px; font-size: 1.8rem; background: var(--palette-linen); border: 1px solid var(--palette-taupe); color: var(--palette-charcoal); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                ✨
+            </div>
+            <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--palette-charcoal); font-family: var(--font-heading);">Create Your Account</h1>
+            <p style="color: var(--palette-slate); font-size: 0.95rem; margin-top: 0.35rem;">
+                Join ServiceHub as a Customer or Professional Service Provider
+            </p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label for="name" style="font-weight: 700; color: var(--palette-charcoal);">Full Name <span class="required" style="color: #dc2626;">*</span></label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Enter your full name"
+                    required
+                    style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                >
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label for="email" style="font-weight: 700; color: var(--palette-charcoal);">Email Address <span class="required" style="color: #dc2626;">*</span></label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="name@example.com"
+                    required
+                    style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                >
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label for="phone" style="font-weight: 700; color: var(--palette-charcoal);">Mobile Number <span class="required" style="color: #dc2626;">*</span></label>
+                <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    placeholder="e.g. 9876543210"
+                    required
+                    style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                >
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label for="password" style="font-weight: 700; color: var(--palette-charcoal);">Create Password <span class="required" style="color: #dc2626;">*</span></label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="At least 6 characters"
+                    required
+                    minlength="4"
+                    style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);"
+                >
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label for="user_type" style="font-weight: 700; color: var(--palette-charcoal);">Account Type <span class="required" style="color: #dc2626;">*</span></label>
+                <select id="user_type" name="user_type" required onchange="toggleRoleFields(this.value)" style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: var(--palette-linen);">
+                    <option value="">Select your role</option>
+                    <option value="customer">👤 Customer (Book Services & Post Job Needs)</option>
+                    <option value="professional">🏪 Professional / Shop Owner (Offer Services & Take Orders)</option>
+                    <option value="admin">👑 Administrator (Platform Command Center)</option>
+                </select>
+                <div class="form-help" style="color: var(--palette-slate); font-size: 0.85rem; margin-top: 0.35rem;">Choose your role to get tailored capabilities. Administrators require security key.</div>
+            </div>
+
+            <!-- Professional Studio & Work Image Upload Section -->
+            <div id="professionalExtraFields" style="display: none; background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.25rem; margin: 1.25rem 0;">
+                <div style="font-weight: 800; color: var(--palette-charcoal); font-size: 0.95rem; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <span>🖼️</span> Studio Profile & Work Photo Upload
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0.85rem;">
+                    <label for="shop_name" style="font-weight: 700; color: var(--palette-charcoal);">Studio / Business Name</label>
+                    <input
+                        type="text"
+                        id="shop_name"
+                        name="shop_name"
+                        placeholder="e.g. Elegance Hair & Beauty Studio / Precision Electricals"
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: #ffffff;"
+                    >
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0.25rem;">
+                    <label for="work_image" style="font-weight: 700; color: var(--palette-charcoal);">Upload Work / Portfolio Photo</label>
+                    <input
+                        type="file"
+                        id="work_image"
+                        name="work_image"
+                        accept="image/*"
+                        style="background: #ffffff; border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.6rem; width: 100%; color: var(--palette-charcoal);"
+                    >
+                    <div class="form-help" style="color: var(--palette-slate); font-size: 0.85rem; margin-top: 0.35rem;">
+                        Upload a clear photo of your work, styling, installation, or studio. Customers will see this to contact you!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Administrator Security Key Section -->
+            <div id="adminExtraFields" style="display: none; background: var(--palette-linen); border: 1.5px solid var(--palette-taupe); border-radius: var(--radius); padding: 1.25rem; margin: 1.25rem 0;">
+                <div style="font-weight: 800; color: var(--palette-charcoal); font-size: 0.95rem; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <span>🛡️</span> Administrator Security Passcode
+                </div>
+                <div class="form-group" style="margin-bottom: 0.25rem;">
+                    <label for="admin_secret_key" style="font-weight: 700; color: var(--palette-charcoal);">Security Key</label>
+                    <input
+                        type="password"
+                        id="admin_secret_key"
+                        name="admin_secret_key"
+                        placeholder="Enter master key (e.g. admin123)"
+                        style="border: 1.5px solid var(--palette-taupe); border-radius: var(--radius-sm); padding: 0.75rem 1rem; width: 100%; color: var(--palette-charcoal); background: #ffffff;"
+                    >
+                    <div class="form-help" style="color: var(--palette-slate); font-size: 0.825rem; margin-top: 0.35rem;">
+                        Default security key: <b style="color: var(--palette-charcoal);">admin123</b>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-gold btn-block btn-lg" style="margin-top: 1.75rem; width: 100%; padding: 0.95rem; font-size: 1.05rem; font-weight: 700;">
+                🎉 Register Account
+            </button>
+        </form>
+
+        <script>
+            function toggleRoleFields(val) {
+                const proBox = document.getElementById('professionalExtraFields');
+                const adminBox = document.getElementById('adminExtraFields');
+                if (proBox) proBox.style.display = (val === 'professional') ? 'block' : 'none';
+                if (adminBox) adminBox.style.display = (val === 'admin') ? 'block' : 'none';
+            }
+        </script>
+
+        <div style="text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--palette-platinum); font-size: 0.95rem;">
+            <p style="color: var(--palette-slate); margin-bottom: 0.5rem;">
+                Already have an account?
+                <a href="/login" style="font-weight: 700; color: var(--palette-charcoal); text-decoration: underline;">Login here</a>
+            </p>
+            <p style="color: var(--palette-slate); font-size: 0.88rem;">
+                👑 Platform Administrator?
+                <a href="/admin/register" style="font-weight: 700; color: var(--palette-charcoal);">Dedicated Admin Registration</a>
+            </p>
+            <div style="margin-top: 0.75rem;">
+                <a href="/" style="color: var(--palette-slate); font-size: 0.85rem;">⬅ Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
